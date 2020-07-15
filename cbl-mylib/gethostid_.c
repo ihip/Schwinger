@@ -1,6 +1,7 @@
-#include <sys/time.h>    
-void gethostid_(int *hhh)
+#include <unistd.h>
+
+void gethostid_(int *hid)
 {
-    hhh[0] = gethostid();
+    hid[0] = gethostid();
 }
 

@@ -1,6 +1,5 @@
-c     f77 test_rcarry.f    
+c    box-muller test of rgauss_new gives bad mean values!!
 c
-c     50K: 0.0152 each call (asterix)
 c
       parameter(nr=50000)
       real a(nr),b(nr)
@@ -18,7 +17,7 @@ c
       print *,'cbl_rgauss (50K) :',tdiff/(10.*nr)
       call cbl_cputime(0,t1)
       do i=1,10
-        call cbl_rgauss1(a,nr,1.001,b)
+        call cbl_rgauss_new(a,nr,1.001,b)
       enddo
       call cbl_cputime(1,tdiff)
       sum=0
@@ -26,11 +25,11 @@ c
         sum=sum+a(i)
       enddo
       print *,sum
-      print *,'cbl_rgauss1(50K) :',tdiff/(10.*nr)
+      print *,'cbl_rgauss_new(50K) :',tdiff/(10.*nr)
       end
 
 C     ******************************************************************
-      subroutine cbl_rgauss1(x,n,sigma,ws)
+      subroutine cbl_rgauss_new(x,n,sigma,ws)
 C     ******************************************************************
 C     ------------------------------------------------------------------
 C     Part of package:        ctu1
@@ -83,56 +82,6 @@ C     ------------------------------------------------------------------
 
       if(n2*2.ne.n)then
         print *,'padding'
-        call cbl_rcarry(xx,2,0.0)
-        x(n)=sqrt(-sigma*alog(xx(1)))*cos(pi2*xx(2))
-      endif
-
-      end
-C     ******************************************************************
-      subroutine cbl_rgauss(x,n,sigma)
-C     ******************************************************************
-C     ------------------------------------------------------------------
-C     Part of package:        ctu1
-C     ------------------------------------------------------------------
-C     Subroutine for: GAUSSIAN RANDOM NUMBER GENERATOR
-C                     a la Box-Muller
-C     ------------------------------------------------------------------
-C     Input variables:
-C         sigma   :(related to width of distribution)
-C         n       :length of random vector x and workspace ws
-C     ------------------------------------------------------------------
-C     Output variables: 
-C         x(1..n) :vector of random numbers with gaussian 
-C                  distribution: exp( -x**2/sigma ) 
-C     ------------------------------------------------------------------
-C     Remarks:
-C               Following Press (p 203) one couls avoid the sin and cos,
-C               call, but has to call more random numbers and check
-C               them and eventually call more. This does not vectorize.
-C               Eventually one should do this in a part cbl_rgauss
-C     ------------------------------------------------------------------
-C     CPU-Requirements (in 10**(-6) sec):  
-C     vectorlength       MIPS4000
-C     50000              3.4 
-C     ------------------------------------------------------------------
-C     ******************************************************************
-C     ------------------------------------------------------------------
-      real x(n),xx(2)
-C     ------------------------------------------------------------------
-      pi2=atan(1.0)*8.0
-      n2=n/2
-
-      call cbl_rc_log(x,n2,0.0)
-      call cbl_rcarry(x(n2+1),n2,0.0)
-
-      do i=1,n2
-        a        = sqrt(-sigma*x(i))
-        b        = pi2*x(n2+i)
-        x(i)     = a*cos(b)
-        x(n2+i)  = a*sin(b)
-      enddo
-
-      if(n2*2.ne.n)then
         call cbl_rcarry(xx,2,0.0)
         x(n)=sqrt(-sigma*alog(xx(1)))*cos(pi2*xx(2))
       endif

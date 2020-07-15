@@ -16,7 +16,7 @@ C         x(1..n) :vector of random numbers with gaussian
 C                  distribution: exp( -x**2/sigma ) 
 C     ------------------------------------------------------------------
 C     Remarks:
-C               Following Press (p 203) one couls avoid the sin and cos,
+C               Following Press (p 203) one could avoid the sin and cos,
 C               call, but has to call more random numbers and check
 C               them and eventually call more. This does not vectorize.
 C               Eventually one should do this in a part cbl_rgauss
@@ -41,10 +41,11 @@ C     ------------------------------------------------------------------
         x(n2+i)  = a*sin(pi2*x(n2+i))
       enddo
 
-      if(n2*2.ne.n)then
-        print *,'padding'
+      if(n2*2.ne.n)then  ! if n is odd last entry is computed separately
+        ! print *,'padding'
         call cbl_rcarry(xx,2,0.0)
         x(n)=sqrt(-sigma*alog(xx(1)))*cos(pi2*xx(2))
       endif
 
       end
+
