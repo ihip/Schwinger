@@ -17,10 +17,10 @@ FFLAGS = -cpp
 
 mylib:	cbl_cputime cbl_datim cbl_header cbl_len cbl_open\
 	cbl_random cbl_ranf cbl_rcarry cbl_rgauss cbl_rtim\
-	gettimeofday_ gethostid_
+	gettimeofday_ gethostid_ gethostname_
 	ar rc mylib.a *.o
 	rm -f *.o
-	@echo Now move mylib.a to the final directory
+	@echo library mylib.a created
 
 all:	mylib
 
