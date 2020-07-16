@@ -3,17 +3,16 @@ C     ******************************************************************
 C     ******************************************************************
 C     **                   **                                         **
 C     **    CBL_RTIM       **     Implemented by C.B. Lang, Jan. 1993 **
-C     **                   **                                         **
+C     **                   **     Modified by I. Hip, Jul. 2020       **
 C     ******************************************************************	
 C     Initialize seed with time
 C     ******************************************************************	
-      integer itm(2),izone(2),gethostid
+      integer itm(2),izone(2),id
 c
 c     add the hostid
 c
-      do i=1,10
-        iseed=mod(iabs(gethostid()),900000000)
-      enddo    
+      call gethostid(id)
+      iseed=mod(iabs(id),900000000)   
 
       call gettimeofday(itm,izone)
       iseed = mod(iseed+itm(1)+itm(2),900000000)
