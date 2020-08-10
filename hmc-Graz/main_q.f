@@ -50,6 +50,9 @@ C     >>> declarations needed for tail
       integer*4 itfut(4)
       real*4 tcpu
 
+C     >>> declarations needed for the loop over beta
+      real*8 beta_start, beta_end, beta_inc
+
 C     ------------------------------------------------------------------
       common/kappa/ akap
       common/constants/ beta
