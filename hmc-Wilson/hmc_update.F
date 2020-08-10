@@ -59,8 +59,8 @@ C     >>> pseudofermion: phi = (M^+) xi
       call mtvec(xi, phi)
 
 C     >>> compute: h_initial = (p, p) / 2 + S_G(beta, U) + (xi, xi)
-      s_initial = sgauge(beta, u) + norm(xi, nall)
-      h_initial = 0.5d0 * norm(p, ngaug) + s_initial
+      s_initial = sgauge(beta, u) + norm(nall, xi)
+      h_initial = 0.5d0 * norm(ngaug, p) + s_initial
 
       niter = integrate(eps, nsteps, p, xi, phi, chi)
 C     >>> if invert didn't converge, reject the new configuration and
@@ -80,8 +80,8 @@ C       >>> restore original s
       end if
 
 C     >>> compute: h_final = (p, p) / 2 + S_G(beta, U) + (phi, chi)
-      s_final = sgauge(beta, u) + dreal(scalp(phi, chi, nferm))        
-      h_final = 0.5d0 * norm(p, ngaug) + s_final
+      s_final = sgauge(beta, u) + dreal(scalp(nferm, phi, chi))        
+      h_final = 0.5d0 * norm(ngaug, p) + s_final
 
 C     >>> METROPOLIS TEST <<<
       h_delta = h_final - h_initial

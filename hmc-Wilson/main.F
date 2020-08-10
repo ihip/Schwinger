@@ -228,7 +228,7 @@ C     ------------------------------------------------------------------
       do 100 it = 1, ntherm
 	niter = update(eps, nsteps, iacc, s_final, h_delta)
 	call adjust_eps(eps, iacc, it)
-	if(mod(it, 100) .eq. 0) call unitarize(u, ngaug)
+	if(mod(it, 100) .eq. 0) call unitarize(ngaug, u)
 	if(mod(it, nsave) .eq. 0) then
 	  rewind 7
 	  write(7) NTIME, NSPACE
@@ -256,7 +256,7 @@ c      call initwindow()
 C       >>> update
 	do i = 1, mstep
 	  ii = (it - 1) * mstep + i
-	  if(mod(ii, 100) .eq. 0) call unitarize(u, ngaug)
+	  if(mod(ii, 100) .eq. 0) call unitarize(ngaug, u)
 	  niter = update(eps, nsteps, iacc, s_final, h_delta)
           cumtime = cumtime + iacc * nsteps * eps
 	  call adjust_eps(eps, iacc, ii)
