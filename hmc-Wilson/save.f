@@ -41,7 +41,7 @@ C     >>> WARNING: nonportable code !!!
       if(nw .eq. 1) then
         write(*, 888)
         write(*, *)
-        write(*, *) '                           H M C 2 D F U 1 (v3)'
+        write(*, *) '                           H M C 2 D F U 1 (v4)'
         write(*, *)
         write(*, 888)
         write(*, 1001) nspace, ntime

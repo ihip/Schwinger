@@ -1,6 +1,6 @@
       program compute_eigenvalues
 
-c	  hip - 24 Nov 07 - last modified: 02 Aug 20
+c	  ihip - 24 Nov 07 - last modified: 05 Aug 20
 
 c	  >>> necessary initializations for 2D U(1)
 	  parameter (ndrc=2,ngrp=1,ndim=2)

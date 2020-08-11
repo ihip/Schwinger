@@ -1,5 +1,5 @@
 ########################################################################
-# Hip, 24 Nov 07; last modified: 03 Aug 20 (Linux - Ubuntu)            #
+# ihip, 24 Nov 07; last modified: 10 Aug 20 (Linux - Ubuntu)           #
 ########################################################################
 
 NTIME = 16
@@ -17,11 +17,11 @@ LAPACK = $(LIB)lapack/liblapack.so.3 $(LIB)blas/libblas.so.3
 FFLAGS = -c $(OPTIMIZATION) -DNTIME=$(NTIME) -DNSPACE=$(NSPACE)
 CFLAGS = -c -DNTIME=$(NTIME) -DNSPACE=$(NSPACE)
 
-eig: main_eig.o hf.o itopch.o lapackeig.o scalp.o\
-     overlap.o save_eig.o Makefile
-	$(FC) $(OPTIMIZATION) main_eig.o hf.o itopch.o scalp.o\
-          lapackeig.o overlap.o save_eig.o\
-          $(MYLIB) $(LAPACK) -o eig$(NTIME).x
+eig: main_eig.o hf.o mk_index.o itopch.o lapackeig.o scalp.o\
+	 normalize.o overlap.o save_eig.o Makefile
+	$(FC) $(OPTIMIZATION) main_eig.o hf.o mk_index.o itopch.o scalp.o\
+          normalize.o lapackeig.o overlap.o save_eig.o\
+          $(MYLIB) $(LAPACK) -o eig$(NSPACE)x$(NTIME).x
 
 main_eig.o: main_eig.F Makefile
 	$(FC) $(FFLAGS) main_eig.F
@@ -29,6 +29,9 @@ main_eig.o: main_eig.F Makefile
 hf.o: hf.F Makefile
 	$(FC) $(FFLAGS) hf.F
 
+mk_index.o: mk_index.F Makefile
+	$(FC) $(FFLAGS) mk_index.F
+	
 itopch.o: itopch.F Makefile
 	$(FC) $(FFLAGS) itopch.F
 
@@ -37,6 +40,9 @@ lapackeig.o: lapackeig.F Makefile
 
 scalp.o: scalp.f Makefile
 	$(FC) $(FFLAGS) scalp.f
+	
+normalize.o: normalize.f Makefile
+	$(FC) $(FFLAGS) normalize.f
 
 overlap.o: overlap.F Makefile
 	$(FC) $(FFLAGS) overlap.F

@@ -5,9 +5,9 @@ C     **                    **                                        **
 C     **  HMC2DFU1          **    Based on program by                 **
 C     **                    **    H. Gausterer and C.B. Lang          **
 C     **                    **    Modified by I. Hip, Nov 95          **
-C     **                    **                                        **
-C     **  v3.0              **    Major revisions: Mar, Dec 96 (ivh)  **
-C     **                    **    Last modified: 05 Apr 97 (ivh)      **
+C     **                    **    Major revisions: Mar, Dec 96 (ihip) **
+C     **  v4.0              **                                        **
+C     **                    **    Last modified: 11 Aug 20 (ihip)     **
 C     ******************************************************************
       parameter (ndrc=2,ngrp=1,ndim=2)
       parameter (nsite=NTIME*NSPACE)
@@ -16,15 +16,8 @@ C     ******************************************************************
 C     >>> ncomp, mcomp - number of computables & mass computables
       parameter (ncomp=27,mcomp=20,nmass=mcomp*(NTIME-1))
 C     >>> nbufsize - size of data buffer
-      parameter (nbufsize=2000)
+      parameter (nbufsize=10000)
 C     ------------------------------------------------------------------
-C     >>> index matrix - be sure to call mk_index to initialize !!!
-      integer ind(4, nsite)
-
-C     >>> EVEN-ODD: variables in common /eo/
-C     >>> call mx_index_eo, mkneo & mkeon to initialize !!!
-      complex*16 ueo(nsite, ndim)
-      integer indeo(4, nsite), neo(nsite), eon(nsite)
 
 C     >>> gauge fields
       complex*16 u(nsite, ndim)
@@ -74,13 +67,10 @@ C     ------------------------------------------------------------------
       common/kappa/ akap
       common/constants/ beta
       common/gauge_fields/ u
-      common/index_arrays/ ind
       common/excpcomm/ nexcp, nexcp_b, nexcp1, nexcp1_b
-C     >>> EVEN-ODD:
-C      common /eo/ indeo, neo, eon, ueo
 C     ------------------------------------------------------------------
-C     Initialization
-C     ------------------------------------------------------------------
+
+C     >>> number of exceptional configurations
       nexcp = 0
       nexcp_b = 0
       nexcp1 = 0
@@ -88,8 +78,8 @@ C     ------------------------------------------------------------------
 
 C     >>> interactive parameter input
       write(*, *)
-      write(*, *) 'HMC main - v3.0 (05 Jun 97)'
-      write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+      write(*, *) 'HMC Wilson - v4.0 (11 Aug 20)'
+      write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
       write(*, *)
       write(*, '(1x, ''beta = '', $)')
       read(*, *) beta
@@ -136,12 +126,8 @@ c      iseed = 38768509
 C     >>> initialize EXPLICIT DEFINITION of gamma matrices (not needed!)
 C      call init_gamma()
 
-C     >>> compute index arrays
-      call mk_index(ind)
-C     >>> EVEN-ODD: necessary initializations
-C      call mk_index_eo(indeo)
-C      call mkneo(NSPACE, neo)
-C      call mkeon(NSPACE, eon)
+C     >>> initialize index arrays
+      call mk_index()
 
 C     >>> initialization of gauge fields
       call create_u(istart, u, start_file)
