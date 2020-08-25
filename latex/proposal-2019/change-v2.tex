@@ -1,0 +1,172 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+%\usepackage[croatian]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+\author{\textbf{PROJECT PROPOSAL} \\ \\ Ivan Hip}
+\title{Change of the Eigenvalue Distribution at the Temperature Transition}
+\date{September 4, 2019}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Aim of this project is to implement computer program which will simulate Schwinger model with two fermionic flavors and generate finite temperature configurations using dynamical chiral fermions. The goal is to investigate if there is a change in the statistical distribution of the smallest eigenvalues of the Dirac operator at the temperature transition and to establish similarities and differences with the transition observed in quantum chromodynamics.
+\end{abstract}
+
+\section{Project description (purpose, aims, activities, expected results)}
+
+Eigenvalue distribution of Dirac operator can be predicted by Random Matrix Theory (RMT) \cite{Akemann:96}. This is confirmed in the lattice field theory simulations of quantum chromodynamics (QCD) \cite{Verbaarschot:00} and also in the two-dimensional quantum electrodynamics, in the so-called Schwinger model \cite{Farchioni:98,Bietenholz:11,Landa-Marban:13}. In quantum chromodynamics rising temperature leads to phase transition and there is numerical evidence of decorrelation of the eigenstates of the Dirac operator \cite{Kovacs:09} which changes the statistical distribution of the smallest eigenvalues. The results presented in \cite{Kovacs:09} show that the smallest eigenvalues are essentially independent. In their following work \cite{Kovacs:12} Kovacs and Pittler have found that there is also a change in the level spacings distribution. States of the complex quantum systems are often strongly correlated and energy level spacings follow Wigner surmise but Kovacs and Pittler have found that above the critical temperature distribution of the level spacings of the smallest energy levels is Poissonian. However, in quantum chromodynamics restoration of the spontaneously broken chiral symmetry also takes place so it is not clear what role in the change of the eigenvalue distribution has a chiral symmetry restoration. In his work \cite{Kovacs:09} Kovacs 
+proposed to investigate the Schwinger model with two flavors of massless fermions because in that model chiral condensate is zero at all temperatures so it is interesting if the eigenvalue distribution always follows predictions of RMT. Partial answer to this question was given in \cite{Bietenholz:11,Landa-Marban:13} where it is found that at the zero temperature eigenvalues follow RMT predictions. However, the question remained what will happen in the finite temperature regime: if there is a transition with the decorrelation of eigenvalues similar as seen in QCD by Kovacs \cite{Kovacs:09} even if no chiral transition takes place? If there is also a transition in the level spacings, that is, if Wigner change to Poissonian distribution, question arises if this transition could be described by some interpolation between these two distributions, as it is, for example, Brody distribution which was tested at Anderson transition \cite{Varga:95}. A possible candidate is also Berry-Robnik distribution \cite{Berry:84} which successfully describes eigenvalue distribution of quantum systems which are equivalent to classically chaotic systems, but was not yet tested or applied in quantum field theories.
+
+It is interesting that Schwinger model is again in the focus of recent research as a laboratory for testing new computational and algorithmic methods. It was one of the first quantum field theories which was simulated on a quantum computer (published in magazine \textit{Nature} \cite{Martinez:16}). Also, tensor network states, one of the new promising methods for description of complex quantum systems was also applied on Schwinger model --- review is given in \cite{Banuls:18} and some of these pioneering research consider finite temperature Schwinger model \cite{Banuls:15, Buyens:16}, but with one fermionic flavor.
+
+Aim of this project is to implement computer program which will simulate Schwinger model with two fermionic flavors and  which will generate finite temperature configurations using dynamical chiral fermions as described in \cite{Bietenholz:11} (chiral fermions fulfill the remnant of the chiral symmetry on the lattice, so-called Ginsparg-Wilson relation \cite{Ginsparg:81}). Simulation of dynamic fermions of mass zero is related to a number of technical problems, but it is expected that in the Schwinger model the transition will also occur even for massive fermions when their mass approaches sufficiently close to zero, as is the case in quantum chromodynamics \cite{Kovacs:12}. When a sufficient number of configurations are collected, appropriate statistical analyzes of the Dirac operator's eigenvalues will be performed.
+
+ 
+\section{Scientific contribution}
+
+This will be the first simulation of the two-flavor Schwinger model at finite temperatures using dynamical chiral fermions with the main objective to investigate distribution of the smallest Dirac operator's eigenvalues. The question is at which temperatures is their distribution and the distribution of their spacings compatible with the predictions of random matrix theory or maybe with the predictions by Kovacs. If there is a similarity with quantum chromodynamics it is easier to investigate the details of the transition mechanism on the two dimensional Schwinger model which requires substantially less computational resources. And if the results won't be compatible with QCD it is possible that the new phenomena emerge which will be worthy of further exploration.
+
+
+\begin{thebibliography}{9}
+
+%\cite{Akemann:1996vr}
+\bibitem{Akemann:96}
+  G.~Akemann, P.~H.~Damgaard, U.~Magnea and S.~Nishigaki,
+  %``Universality of random matrices in the microscopic limit and the Dirac operator spectrum,''
+  Nucl.\ Phys.\ B {\bf 487} (1997) 721
+  doi:10.1016/S0550-3213(96)00713-4
+  [hep-th/9609174].
+  %%CITATION = doi:10.1016/S0550-3213(96)00713-4;%%
+  %159 citations counted in INSPIRE as of 21 Aug 2019
+
+%\cite{Verbaarschot:2000dy}
+\bibitem{Verbaarschot:00}
+  J.~J.~M.~Verbaarschot and T.~Wettig,
+  %``Random matrix theory and chiral symmetry in QCD,''
+  Ann.\ Rev.\ Nucl.\ Part.\ Sci.\  {\bf 50} (2000) 343
+  doi:10.1146/annurev.nucl.50.1.343
+  [hep-ph/0003017].
+  %%CITATION = doi:10.1146/annurev.nucl.50.1.343;%%
+  %251 citations counted in INSPIRE as of 21 Aug 2019
+  
+%\cite{Farchioni:1998jc}
+\bibitem{Farchioni:98}
+  F.~Farchioni, I.~Hip, C.~B.~Lang and M.~Wohlgenannt,
+  %``Eigenvalue spectrum of massless Dirac operators on the lattice,''
+  Nucl.\ Phys.\ B {\bf 549} (1999) 364
+  doi:10.1016/S0550-3213(99)00162-5
+  [hep-lat/9812018].
+  %%CITATION = doi:10.1016/S0550-3213(99)00162-5;%%
+  %49 citations counted in INSPIRE as of 21 Aug 2019
+
+%\cite{Bietenholz:2011ey}
+\bibitem{Bietenholz:11}
+  W.~Bietenholz, I.~Hip, S.~Shcheredin and J.~Volkholz,
+  %``A Numerical Study of the 2-Flavour Schwinger Model with Dynamical Overlap Hypercube Fermions,''
+  Eur.\ Phys.\ J.\ C {\bf 72} (2012) 1938
+  doi:10.1140/epjc/s10052-012-1938-9
+  [arXiv:1109.2649 [hep-lat]].
+  %%CITATION = doi:10.1140/epjc/s10052-012-1938-9;%%
+  %26 citations counted in INSPIRE as of 21 Aug 2019
+
+%\cite{Landa-Marban:2013oia}
+\bibitem{Landa-Marban:13}
+  D.~Landa-Marban, W.~Bietenholz and I.~Hip,
+  %``Features of a 2d Gauge Theory with Vanishing Chiral Condensate,''
+  Int.\ J.\ Mod.\ Phys.\ C {\bf 25} (2014) 1450051
+  doi:10.1142/S012918311450051X
+  [arXiv:1307.0231 [hep-lat]].
+  %%CITATION = doi:10.1142/S012918311450051X;%%
+  %8 citations counted in INSPIRE as of 21 Aug 2019
+  
+%\cite{Kovacs:2009zj}
+\bibitem{Kovacs:09}
+  T.~G.~Kovacs,
+  %``Absence of correlations in the QCD Dirac spectrum at high temperature,''
+  Phys.\ Rev.\ Lett.\  {\bf 104} (2010) 031601
+  doi:10.1103/PhysRev Lett.104.031601
+  [arXiv:0906.5373 [hep-lat]].
+  %%CITATION = doi:10.1103/PhysRevLett.104.031601;%%
+  %34 citations counted in INSPIRE as of 21 Aug 2019
+
+%\cite{Kovacs:2012zq}
+\bibitem{Kovacs:12}
+  T.~G.~Kovacs and F.~Pittler,
+  %``Poisson to Random Matrix Transition in the QCD Dirac Spectrum,''
+  Phys.\ Rev.\ D {\bf 86} (2012) 114515
+  doi: 10.1103/PhysRevD.86.114515
+  [arXiv:1208.3475 [hep-lat]].
+  %%CITATION = doi:10.1103/PhysRevD.86.114515;%%
+  %28 citations counted in INSPIRE as of 23 Aug 2019
+  
+%\cite{Varga:95}
+\bibitem{Varga:95}
+  I.~Varga, E.~Hofstetter, M.~Schreiber and J.~Pipek,
+  %``Shape analysis of the level-spacing distribution around the metal-insulator transition in the three-dimensional Anderson model,''
+  Phys.\ Rev.\ B {\bf 52} (1995) 7783
+  doi:10.1103/PhysRevB.52.7783
+  [arXiv:cond-mat/ 9407058v1].
+
+%\cite{Berry:84}
+\bibitem{Berry:84}
+  M.~V.~Berry and M.~Robnik,
+  %``Semiclassical level spacings when regular and chaotic orbits coexist,''
+  J. Phys. A: Math. Gen. {\bf 17}(12):2413 (1984)
+  doi:10.1088/0305-4470/17/12/013
+
+%\cite{Martinez:2016yna}
+\bibitem{Martinez:16}
+  E.~A.~Martinez {\it et al.},
+  %``Real-time dynamics of lattice gauge theories with a few-qubit quantum computer,''
+  Nature {\bf 534} (2016) 516
+  doi:10.1038/nature18318
+  [arXiv:1605.04570 [quant-ph]].
+  %%CITATION = doi:10.1038/nature18318;%%
+  %110 citations counted in INSPIRE as of 23 Aug 2019
+
+%\cite{Banuls:2018jag}
+\bibitem{Banuls:18}
+  M.~C.~Bañuls, K.~Cichy, J.~I.~Cirac, K.~Jansen and S.~Kühn,
+  %``Tensor Networks and their use for Lattice Gauge Theories,''
+  PoS LATTICE {\bf 2018} (2018) 022
+  doi:10.22323/1.334.0022
+  [arXiv:1810.12838 [hep-lat]].
+  %%CITATION = doi:10.22323/1.334.0022;%%
+  %7 citations counted in INSPIRE as of 22 Aug 2019
+  
+%\cite{Banuls:2015sta}
+\bibitem{Banuls:15}
+  M.~C.~Bañuls, K.~Cichy, J.~I.~Cirac, K.~Jansen and H.~Saito,
+  %``Thermal evolution of the Schwinger model with Matrix Product Operators,''
+  Phys.\ Rev.\ D {\bf 92} (2015) 034519
+  doi:10.1103/PhysRevD.92.034519
+  [arXiv:1505.00279 [hep-lat]].
+  %%CITATION = doi:10.1103/PhysRevD.92.034519;%%
+  %40 citations counted in INSPIRE as of 23 Aug 2019
+  
+%\cite{Buyens:2016ecr}
+\bibitem{Buyens:16}
+  B.~Buyens, F.~Verstraete and K.~Van Acoleyen,
+  %``Hamiltonian simulation of the Schwinger model at finite temperature,''
+  Phys.\ Rev.\ D {\bf 94} (2016) 085018
+  doi:10.1103/PhysRevD.94.085018
+  [arXiv:1606.03385 [hep-lat]].
+  %%CITATION = doi:10.1103/PhysRevD.94.085018;%%
+  %26 citations counted in INSPIRE as of 23 Aug 2019
+
+%\cite{Ginsparg:1981bj}
+\bibitem{Ginsparg:81}
+  P.~H.~Ginsparg and K.~G.~Wilson,
+  %``A Remnant of Chiral Symmetry on the Lattice,''
+  Phys.\ Rev.\ D {\bf 25} (1982) 2649
+  doi:10.1103/PhysRevD.25.2649
+  %%CITATION = doi:10.1103/PhysRevD.25.2649;%%
+  %1055 citations counted in INSPIRE as of 26 Aug 2019
+  
+\end{thebibliography}
+
+\end{document}
