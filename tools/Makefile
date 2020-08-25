@@ -3,10 +3,10 @@
 ########################################################################
 #
 # maximal lattice size in time dimension:
-MAX_NTIME = 32
+MAX_NTIME = 64
 #
 # maximal lattice size in space dimension:
-MAX_NSPACE = 32
+MAX_NSPACE = 64
 #
 # maximal number of computables:
 MAX_NCOMP = 30
@@ -15,7 +15,7 @@ MAX_NCOMP = 30
 MAX_MCOMP = 20
 #
 # maximal number of measurements:
-MAX_NMEAS = 100000
+MAX_NMEAS = 10000
 #
 ########################################################################
 #
