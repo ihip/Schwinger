@@ -35,6 +35,9 @@ c	outname = 'pcac.col'
 
 	open(3, file = listfilename, form = 'formatted', status = 'old')
 	open(2, file = outname, form = 'formatted', status = 'unknown')
+	write(2, *)
+	write(2, '(a)') '# fermion mass from PCAC relation'
+	write(2, '(a)') '"m"'
 
 c     >>> main loop over files in the list
 10    read(3, '(a)', end = 99) mass_file_name
@@ -50,35 +53,38 @@ c     >>> main loop over files in the list
 	    stop
 	  end if
 
-	  call pcac_analysis(akap, ntime, nspace, mcomp, nmeas)
+	  call pcac_analysis(beta, akap, ntime, nspace, mcomp, nmeas)
 
 	  call load_tail(1)
 	  close(1)
 	  goto 10
 
 99      close(3)
+
+	write(2, *)
 	close(2)
 	write(*, *) 'ok!'
 	end
 
 
 C     ******************************************************************
-      subroutine pcac_analysis(akap, ntime, nspace, mcomp, nmeas)
+      subroutine pcac_analysis(beta, akap, ntime, nspace, mcomp, nmeas)
 C     ******************************************************************
 C     **                   **                                         **
 C     ** PCAC_ANALYSIS     **   I. Hip, 08 Apr 97                     **
-C     ** v3                **   Last modified: 08 Sep 97              **
+C     ** v3                **   Last modified: 30 Oct 20              **
 C     **                   **                                         **
 C     ******************************************************************        
 C     ...
 C     ******************************************************************
+C     IN (real*8) beta - beta (used only for output)
 C     IN (real*8) akap - kappa
 C     IN ntime - lattice size in time dimension
 C     IN nspace - lattice size in space dimension
 C     IN mcomp - number of mcomputables
 C     IN nmeas - number of measurements
 C     ******************************************************************
-	real*8 akap
+	real*8 beta, akap
 	real*8 mean_x(MAX_NTIME, MAX_MCOMP), var_x(MAX_NTIME, MAX_MCOMP)
 	real*8 tpcac(MAX_NTIME), trpcac(MAX_NTIME), tallpcac(MAX_NTIME)
         real*8 tpcac_var(MAX_NTIME)
@@ -121,8 +127,8 @@ c >>> computation of final error (errors + scattering): qmass_var
 	end do
 	qmass_var = (qmass_var + smm) / dble(ntime - 1 - 2 * leave)
 
-	write(2, '(1x, f8.5, 2e24.16, i7)') akap, qmass,
-     &    dsqrt(qmass_var), nmeas
+	write(2, '(1x, i4, i4, f6.2, f8.4, 2e24.16, i7)') nspace, ntime, 
+     &    beta, akap, qmass, dsqrt(qmass_var), nmeas
 	
 	return
 	end

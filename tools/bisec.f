@@ -15,7 +15,7 @@ c	>>> make symmetrization
 
         do i = 1, ntime - 2
 	  if((corr(i) .lt. 0) .or. (corr(i + 1) .lt. 0)) then
-	    write(*, *) 'neg. corr'
+c	    write(*, *) 'neg. corr'
 	    efmass(i) = -100.0d0
 	  else
 

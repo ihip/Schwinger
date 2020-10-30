@@ -24,10 +24,11 @@ C     >>> other variables which are needed
 	real*8 t1(max_file), t1_var(max_file)
 	real*8 t3(max_file), t3_var(max_file)
 	real*8 s1(max_file), s1_var(max_file)
-	real*8 akap_f(max_file)
+	real*8 beta_f(max_file), akap_f(max_file)
+	integer*4 nspace_f(max_file), ntime_f(max_file)
 
 	write(*, *)
-	write(*, *) 'Mass collector v4 (ihip, 25 Aug 20)'
+	write(*, *) 'Mass collector v4 (ihip, 30 Oct 20)'
 	write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	write(*, *)
 	write(*, '(1x, ''File list file name: '', $)')
@@ -68,6 +69,9 @@ c   >>> loop over files in the list
 	  end if
 
 	  kf = kf + 1
+	  nspace_f(kf) = nspace
+	  ntime_f(kf) = ntime
+	  beta_f(kf) = beta
 	  akap_f(kf) = akap
 	  call meffjack_coll(ntime, jkblocks, mcomp, nmeas, t1(kf),
      & t1_var(kf), t3(kf), t3_var(kf), s1(kf), s1_var(kf), mode, nplat)
@@ -78,23 +82,32 @@ c   >>> loop over files in the list
 
 99      close(3)
 
+	write(2, '(a)') '# pion mass (\sigma_1)'
+	write(2, '(''"'', i1, ''"'')') nplat
 	do i = 1, kf
-	  write(2, '(1x, f8.5, 2e24.16, i7)') akap_f(i), t1(i),
-     &      dsqrt(t1_var(i)), nmeas
+	  write(2, '(1x, 2i4, f6.2, f8.4, 2e24.16, i7)') 
+     & nspace_f(i), ntime_f(i), beta_f(i), akap_f(i),
+     & t1(i), dsqrt(t1_var(i)), nmeas
 	end do
 	write(2, *)
 	write(2, *)
 
+	write(2, '(a)') '# pseudoscalar mass (\sigma_3)'
+	write(2, '(''"'', i1, ''"'')') nplat
 	do i = 1, kf
-	  write(2, '(1x, f8.5, 2e24.16, i7)') akap_f(i), t3(i),
-     &      dsqrt(t3_var(i)), nmeas
+	  write(2, '(1x, 2i4, f6.2, f8.4, 2e24.16, i7)') 
+     & nspace_f(i), ntime_f(i), beta_f(i), akap_f(i),
+     & t3(i), dsqrt(t3_var(i)), nmeas
 	end do
 	write(2, *)
 	write(2, *)
-	
+
+	write(2, '(a)') '# eta mass (\sigma_1)'
+	write(2, '(''"'', i1, ''"'')') nplat
 	do i = 1, kf
-	  write(2, '(1x, f8.5, 2e24.16, i7)') akap_f(i), s1(i),
-     &      dsqrt(s1_var(i)), nmeas
+	  write(2, '(1x, 2i4, f6.2, f8.4, 2e24.16, i7)') 
+     & nspace_f(i), ntime_f(i), beta_f(i), akap_f(i),
+     & s1(i), dsqrt(s1_var(i)), nmeas
 	end do
 
 	close(2)
