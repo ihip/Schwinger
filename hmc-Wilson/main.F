@@ -6,8 +6,8 @@ C     **  HMC2DFU1          **    Based on program by                 **
 C     **                    **    H. Gausterer and C.B. Lang          **
 C     **                    **    Modified by I. Hip, Nov 95          **
 C     **                    **    Major revisions: Mar, Dec 96 (ihip) **
-C     **  v4.0              **                                        **
-C     **                    **    Last modified: 11 Aug 20 (ihip)     **
+C     **  v4.1              **                                        **
+C     **                    **    Last modified: 06 Nov 20 (ihip)     **
 C     ******************************************************************
       parameter (ndrc=2,ngrp=1,ndim=2)
       parameter (nsite=NTIME*NSPACE)
@@ -42,11 +42,15 @@ C     >>> declarations for functions in inv.f, etc.
       complex*16 pbg1p_e, pbg2p_e
       real*8 sgauge
 
-C     >>> file names handling
+C     >>> file names
       character*32 start_file
-      character*6 c_beta, c_kappa
-      character*17 conf_name, data_name, mass_name
+      character*27 conf_name, data_name, mass_name
       character*8 c_ident
+
+C     >>> file name preparation
+      character*4 c_nspace, c_ntime
+      character*10 c_size
+      character*6 c_beta, c_kappa
 
 C     >>> declarations needed for .data file
       character*64 c_computable(ncomp)
@@ -78,7 +82,7 @@ C     >>> number of exceptional configurations
 
 C     >>> interactive parameter input
       write(*, *)
-      write(*, *) 'HMC Wilson - v4.0 (11 Aug 20)'
+      write(*, *) 'HMC Wilson - v4.1 (06 Nov 20)'
       write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
       write(*, *)
       write(*, '(1x, ''beta = '', $)')
@@ -137,15 +141,20 @@ C     >>> here starts akap loop: akap = akap_start, akap_end, akap_inc
 10    continue
 
 C     >>> prepare the names for configuration and data files
-C     >>> - gauge field configuration is saved in b[beta]k[kappa].conf
-C     >>> - results of measurements in b[beta]k[kappa].data
+C     >>> - cname = L[nspace]x[ntime]b[beta]k[kappa]
+C     >>> - gauge field configuration is saved in cname.conf
+C     >>> - results of measurements in cname.data
+C     >>> - mass measurements in cname.mass
+      write(c_nspace, '(i4)') NSPACE + 1000
+      write(c_ntime, '(i4)') NTIME + 1000
+      c_size = 'L'//c_nspace(2:4)//'x'//c_ntime(2:4)//'_b'
       ival = int((beta + 100.0000001d0) * 1000.0d0)
       write(c_beta, '(i6)') ival
       ival = int((akap + 1.000000001d0) * 100000.0d0)
       write(c_kappa, '(i6)') ival
-      conf_name = 'b'//c_beta(2:6)//'k'//c_kappa(2:6)//'.conf'
-      data_name = 'b'//c_beta(2:6)//'k'//c_kappa(2:6)//'.data'
-      mass_name = 'b'//c_beta(2:6)//'k'//c_kappa(2:6)//'.mass'
+      conf_name = c_size//c_beta(2:6)//'_k'//c_kappa(2:6)//'.conf'
+      data_name = c_size//c_beta(2:6)//'_k'//c_kappa(2:6)//'.data'
+      mass_name = c_size//c_beta(2:6)//'_k'//c_kappa(2:6)//'.mass'
 
 C     >>> prepare textual data description
       c_computable(1) = 'acc'
