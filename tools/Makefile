@@ -54,6 +54,12 @@ collect: collect.f load.o jackknife.o jackknife_s.o
 
 ########################################################################
 
+gcollect: gcollect.f load.o jackknife.o jackknife_s.o
+	$(F77) $(FFLAGS) gcollect.f load.o jackknife.o jackknife_s.o \
+	  -o gcollect.x
+
+########################################################################
+
 pcaccoll: pcaccoll.f load.o jackknife.o
 	$(F77) $(FFLAGS) pcaccoll.f load.o jackknife.o -o pcaccoll.x
 

@@ -110,6 +110,7 @@ c   >>> loop over files in the list
      & s1(i), dsqrt(s1_var(i)), nmeas
 	end do
 
+	write(2, *)
 	close(2)
 	write(*, *) 'ok!'
 	end
