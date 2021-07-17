@@ -12,7 +12,7 @@ C     ******************************************************************
       parameter (nall=2*ndrc*ngrp*nsite)
 
 C     >>> ncomp - number of computables
-      parameter (ncomp=5)
+      parameter (ncomp=8)
 C     >>> nbufsize - size of data buffer
       parameter (nbufsize=10000)
 C     ------------------------------------------------------------------
@@ -26,7 +26,7 @@ C     >>> simulation parameters
       real*8 beta, akap, eps
 
 C     >>> declarations for functions
-      real*8 sgauge
+      real*8 sgauge, sintopch
 
 C     >>> file names handling
       character*32 start_file
@@ -55,7 +55,7 @@ C     >>> pure gauge means \kappa = 0
 
 C     >>> interactive parameter input
       write(*, *)
-      write(*, *) 'Metropolis (29 Sep 98 / 18 Jul 20)'
+      write(*, *) 'Metropolis (29 Sep 98 / 12 Jul 21)'
       write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
       write(*, *)
       write(*, '(1x, ''start beta     = '', $)')
@@ -118,6 +118,9 @@ C     >>> prepare textual data description
       c_computable(3) = 'eps'
       c_computable(4) = 'sgauge / nsites'
       c_computable(5) = 'topological charge'
+      c_computable(6) = 'topological charge (sin)'
+      c_computable(7) = 'beta * chiT'
+      c_computable(8) = 'beta * chiT (sin)'
 
       open(unit=7,file=conf_name,form='unformatted',status='unknown')
       open(unit=8,file=data_name,form='unformatted',status='unknown')
@@ -188,7 +191,10 @@ C       >>> measurements
 C      print *, 'sgauge: ', sngl(sgauge(beta, u) / dble(nsite))
       computable(5, ns) = float(itopch())
 C      print *, 'itopch: ', float(itopch())
-
+      computable(6, ns) = sngl(sintopch())
+      computable(7, ns) = sngl(beta * itopch()**2 / dble(nsite))
+      computable(8, ns) = sngl(beta * sintopch()**2 / dble(nsite))
+      
 	if((ns .eq. nsave) .or. (it .eq. nmeas)) then
 	  rewind 7
 	  write(7) NTIME, NSPACE

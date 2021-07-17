@@ -1,20 +1,20 @@
 ########################################################################
-# Makefile for tools #### ivh, 21 Mar 97 - Last modified: 17 Jul 20 ####
+# Makefile for tools #### ivh, 21 Mar 97 - Last modified: 14 Jul 21 ####
 ########################################################################
 #
-# maximal lattice size in time dimension:
+# maximal lattice size in time dimension (recommended 64):
 MAX_NTIME = 64
 #
-# maximal lattice size in space dimension:
+# maximal lattice size in space dimension (recommended 64):
 MAX_NSPACE = 64
 #
-# maximal number of computables:
+# maximal number of computables (recommended 30):
 MAX_NCOMP = 30
 #
-# maximal number of mass computables:
+# maximal number of mass computables (recommended 20):
 MAX_MCOMP = 20
 #
-# maximal number of measurements:
+# maximal number of measurements (recommended 10000):
 MAX_NMEAS = 10000
 #
 ########################################################################
