@@ -1,0 +1,40 @@
+Autocorrelation of top. charge on 16 x 16 lattice with measurement step 1 for different beta-s:
+
+1.0	   0.5
+1.5	   2
+2.0	   2
+2.5	   4
+3.0	  12
+3.5	  20
+4.0	  40
+4.5	 110
+5.0	 230
+5.5	 430
+6.0	1900 (?)
+7.0	1700
+8.0	NaN
+9.0	NaN
+10.0	NaN
+
+
+Measurement step necessary (recommended & applied) for proper decorrelation:
+
+1.0	   1	(10)
+1.5	   2	(20) ?
+2.0	   4	(10)
+2.5	   8	(40)
+3.0	  24	(100)
+3.5	  40	(100)
+4.0	  80	(400)
+4.5	 250	(1000)
+5.0	 500	(2000)
+5.5	1000	(3000)
+6.0	4000	(5000)
+
+
+Hip, 2021-07-13
+
+
+     
+
+
