@@ -321,3 +321,7 @@ TSWLatexianTemp*
 # Uncomment the next line to have this generated file ignored.
 #*Notes.bib
 
+
+### SageMath ### Hip, 2021-07-17
+.ipynb_checkpoints
+
