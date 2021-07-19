@@ -21,12 +21,24 @@
 \section{Introduction}
 
 \begin{frame}{Schwinger model}
+  \begin{itemize}
+    \item two-dimensional quantum electrodynamics - fermions coupled to Abelian gauge field U(1)
+    \item introduced by Schwinger in 1961
+    \item the simplest example of chiral anomaly, one of the simplest models which illustrates confinement
+    \item often used as a testbed for conceptual and numerical
+approaches in lattice field theory
+    \item nevertheless, some of the rich physical
+properties of the model in anisotropic volumes have not yet been tested
+    \begin{itemize}
+      \item \textbf{finite temperature Schwinger model}: Hosotani solution has not been compared with the lattice simulation results
+      \item \textbf{$\delta$-regime}: Hasenfratz and Niedermayer predictions for residual pion mass have not been investigated in the Schwinger model
+    \end{itemize}
+  \end{itemize}
 \end{frame}
-
 
 \section{Finite temperature}
 
-\begin{frame}{Finite temperature - Hosotani prediction}
+\begin{frame}{Finite temperature - Hosotani solution}
   \includegraphics[width=1\textwidth]{figs/FiniteTMPiHos}
 \end{frame}
 
@@ -44,6 +56,7 @@
 \end{frame}
 
 \begin{frame}{Hasenfratz/Niedermayer prediction}
+
 \end{frame}
 
 \begin{frame}{Residual pion mass plateau}
@@ -61,9 +74,20 @@
       \includegraphics[width=1.0\textwidth]{figs/ResMpiBeta4}
     \column{0.5\textwidth}
       \includegraphics[width=1.0\textwidth]{figs/ResMpiBeta3}
-      \[
-      	F_\pi = 0.7
-      \]
+      \begin{center} 
+	    \begin{tabular}{c c c c}
+	      $\beta$ & $F_\pi$ \\
+	      \hline
+	      2.0 & 0.6683(50) \\
+	      \hline
+	      3.0 & 0.6681(25) \\
+	      \hline
+	      4.0 & 0.6700(22) \\
+	    \end{tabular}
+        \[
+      	  F_\pi = 0.6688(5)
+        \]
+      \end{center}	 
   \end{columns}
 \end{frame}
 
@@ -71,39 +95,45 @@
 \section{Witten-Veneziano}
 
 \begin{frame}{Witten-Veneziano formula}
-In the chiral $N$-flavor Schwinger model the Witten-Veneziano formula is simplified to [Seiler and
-Stamatescu, 1987]
-\[
-  m_\eta^2 = \frac{2N}{F_\eta^2}\chi_T^{que}
-\]
-Mass of the $\eta$ particle is known analytically [Belvedere et al. 1979] 
-\[
-  m_\eta^2 = \frac{N}{\pi\beta}
-\]
-and there is also continuum prediction for $\chi_T^{que}$
-[Seiler and Stamatescu, 1987]
-\[
-  \beta\chi_T^{que} = \frac{1}{4\pi^2}
-\]
+  \begin{itemize}
+    \item in the chiral $N$-flavor Schwinger model the Witten-
+      Veneziano formula is simplified to [Seiler and Stamatescu,
+      1987]
+      \[
+        m_\eta^2 = \frac{2N}{F_\eta^2}\chi_T^{que}
+      \]
+    \item mass of the $\eta$ particle is known analytically
+      [Belvedere et al. 1979] 
+      \[
+        m_\eta^2 = \frac{N}{\pi\beta}
+      \]
+    \item there is also continuum prediction for $\chi_T^{que}$
+      [Seiler and Stamatescu, 1987]
+      \[
+        \beta\chi_T^{que} = \frac{1}{4\pi^2}
+      \]
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Quenched topological susceptibility}
-By using an alternative definition of topological charge
-\[
-  Q_S = \frac{1}{2\pi}\sum_{P}\sin(\theta_P)
-\]
-[Bardeen et al., 1998] were able to analytically compute
-$\chi_T^{que}$ on the lattice
-\[
-  \beta\chi_T^{que} = \frac{I_1(\beta)}{4 \pi^2 I_0(\beta)}
-\]
-For the usual definition of topological charge
-\[
-  Q_T = \frac{1}{2\pi}\sum_{P}\theta_P
-\]
-it is not possible to find analytic solution, but using the 
-same line of reasoning it is possible to numerically compute
-$\chi_T^{que}$ to arbitrary precision.
+  \begin{itemize}
+    \item {[Bardeen et al., 1998]} were able to analytically
+      compute $\chi_T^{que}$ on the lattice
+      \[
+        \beta\chi_T^{que} = \frac{I_1(\beta)}{4 \pi^2 I_0(\beta)}
+      \]
+      by using an alternative definition of topological charge
+      \[
+        Q_S = \frac{1}{2\pi}\sum_{P}\sin(\theta_P)
+      \]
+    \item for the usual definition of topological charge
+      \[
+        Q_T = \frac{1}{2\pi}\sum_{P}\theta_P
+      \]
+      it is not possible to find analytic solution, but using the 
+      same line of reasoning it is possible to numerically compute
+      $\chi_T^{que}$ to arbitrary precision
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Quenched topological susceptibility}
@@ -111,6 +141,24 @@ $\chi_T^{que}$ to arbitrary precision.
 \end{frame}
 
 \begin{frame}{$F_\eta$ versus $F_\pi$}
+\begin{itemize}
+  \item in large $N_c$ QCD, to the order $1/N_c$
+    \[
+      F_{\eta'} = F_\pi
+    \]
+  \item in the Schwinger model nothing assures that this relation holds
+  \item inserting the confirmed values for $m_\eta^2$ and $\chi_T^{que}$ 
+    \[
+      F_{\eta}^2 = \frac{2N}{m_\eta^2}\chi_T^{que} =
+        2N \left(\frac{\pi\beta}{N}\right)
+        \left(\frac{1}{4\pi^2\beta}\right) =
+        \frac{1}{2\pi}
+    \]
+  \item our results suggest that in the Schwinger model these two decay constants differ significantly
+    \[
+      F_{\eta} = 0.3989 \qquad F_\pi = 0.6688(5)
+    \]
+\end{itemize}
 \end{frame}
 
 \end{document}
