@@ -1,6 +1,8 @@
 \documentclass[english]{beamer}
 \usetheme{Frankfurt}
 
+\setbeamersize{description width=0.57cm}
+
 \title{Finite temperature and $\delta$-regime in the Schwinger model}
 \author{
   Ivan Hip\textsuperscript{a},
@@ -22,18 +24,20 @@
 
 \begin{frame}{Schwinger model}
   \begin{itemize}
-    \item two-dimensional quantum electrodynamics - fermions coupled to Abelian gauge field U(1)
-    \item introduced by Schwinger in 1961
+    \item introduced by [Schwinger, 1961]:
+      \textit{two-dimensional quantum electrodynamics}
+      --- fermions coupled to Abelian gauge field 
     \item the simplest example of chiral anomaly, one of the simplest models which illustrates confinement
     \item often used as a testbed for conceptual and numerical
 approaches in lattice field theory
     \item nevertheless, some of the rich physical
-properties of the model in anisotropic volumes have not yet been tested
-    \begin{itemize}
-      \item \textbf{finite temperature Schwinger model}: Hosotani solution has not been compared with the lattice simulation results
-      \item \textbf{$\delta$-regime}: Hasenfratz and Niedermayer predictions for residual pion mass have not been investigated in the Schwinger model
-    \end{itemize}
+properties of the model in anisotropic volumes have not yet been tested:
   \end{itemize}
+  \begin{description}
+    \item[Finite temperature Schwinger model]:
+       Hosotani solution has not been compared with the lattice simulation results
+      \item[$\delta$-regime]: Hasenfratz and Niedermayer predictions for residual pion mass have not been investigated in the Schwinger model
+  \end{description}
 \end{frame}
 
 \section{Finite temperature}
@@ -53,18 +57,53 @@ properties of the model in anisotropic volumes have not yet been tested
 \section{$\delta$-regime}
 
 \begin{frame}{$\delta$-regime}
+  \begin{itemize}
+    \item spatial volume is small compared to the correlation
+      length
+      \[
+        \xi = m_\pi^{-1}
+      \]
+      but the Euclidean time extent is large
+      \[
+        L_t\gg \xi \gtrsim L
+      \]
+    \item the system is quasi one dimensional - approximation by
+      quantum rotor [Leutwyler, 1987]
+    \item pion has \textit{residual mass}
+      \[
+        m_\pi^R = \frac{3}{2\Theta}
+      \]
+      where $\Theta$ is the moment of inertia
+  \end{itemize}
 \end{frame}
 
-\begin{frame}{Hasenfratz/Niedermayer prediction}
-
-\end{frame}
-
-\begin{frame}{Residual pion mass plateau}
+\begin{frame}{Residual pion mass plateau: $L_t = 64, L = 10$}
   \includegraphics[width=1\textwidth]{figs/Mpi10x64}
 \end{frame}
 
-\begin{frame}{Residual pion mass plateau}
+\begin{frame}{Residual pion mass plateau: $L_t = 64, L = 6$}
   \includegraphics[width=1\textwidth]{figs/Mpi6x64Pt10}
+\end{frame}
+
+\begin{frame}{Hasenfratz/Niedermayer prediction}
+  \begin{itemize}
+    \item {[Hasenfratz and Niedermayer, 1993]} computed $\Theta$
+      up to next-to-leading order, for a general dimension $d > 2$
+            \[
+        \Theta = F_\pi^2 L^{d-1} \left[1 +
+          \frac{N - 2}{4\pi F_\pi^2 L^{d-2}}
+          \left(2\frac{d - 1}{d - 2} + ...\right) \right]
+      \]
+    \item in two dimensions ($d = 2$) there is a divergence of 
+      the next to leading term, so we just consider the 
+      leading term
+      \[
+        m_\pi^R \simeq \frac{3}{2F_\pi^2 L}
+      \]
+    \item we performed simulations to verify the relation
+      $m_\pi^R \propto 1 / L$ and extract the value of 
+      pion decay constant $F_\pi$
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{1 / L confirmed by lattice simulation}
