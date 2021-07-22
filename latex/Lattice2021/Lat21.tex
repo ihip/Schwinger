@@ -20,6 +20,7 @@
   \titlepage
 \end{frame}
 
+
 \section{Introduction}
 
 \begin{frame}{Schwinger model}
@@ -41,10 +42,50 @@ properties of the model in anisotropic volumes have not yet been tested:
   \end{description}
 \end{frame}
 
+\begin{frame}{N-flavor Schwinger model}
+  \begin{itemize}
+    \item massless case has analytic solution
+      [Belvedere et al., 1979]
+    \item one massive boson ("eta") --- $g$ is gauge coupling
+      \[
+        m_\eta^2 = N\,\frac{g^2}{\pi}
+      \]
+    \item $N - 1$ massless bosons ("pions")
+    \item massive case (fermion mass $m > 0$) has no exact solution
+    \item semiclassical prediction at infinite volume
+      \[
+        m_\pi(m) = \left(4e^{2\gamma}\sqrt{\frac{2}{\pi}}\right)
+          (m^2 g)^{1/3} = 2.1633...(m^2 g)^{1/3}
+      \]        
+  \end{itemize}
+\end{frame}
+
+  
 \section{Finite temperature}
 
-\begin{frame}{Finite temperature - Hosotani solution}
-  \includegraphics[width=1\textwidth]{figs/FiniteTMPiHos}
+\begin{frame}{Finite temperature - Hosotani approximate solution}
+  \begin{itemize}
+    \item approximate solution by Hosotani et al.
+      based on bosonization
+    \item finite temperature Schwinger model reduced to quantum
+      mechanical system with $N - 1$ degrees of freedom
+    \item set of equations which can be solved numerically to 
+      arbitrary precision to get the boson masses $\mu_1$ and
+      $\mu_2$
+    \item for $N$ degenerate flavors:
+      \begin{itemize}
+         \item $N-1$ bosons with the mass $\mu_2$
+         \item one boson with mass $\mu_1 > \mu_2$
+      \end{itemize}
+    \item for the fermion mass $m\rightarrow0$:
+      \begin{itemize}
+        \item $\mu_2 \rightarrow 0$ ("pion")
+        \item $\mu_1 \rightarrow m_\eta$ ("eta")
+      \end{itemize}
+    \item in the limit $L_t \rightarrow 0$ Hosotani solution
+      converges to semiclassical result
+  \end{itemize}
+  %\includegraphics[width=1\textwidth]{figs/FiniteTMPiHos}
 \end{frame}
 
 \begin{frame}{Pion mass - Hosotani vs. lattice simulation}
@@ -54,6 +95,7 @@ properties of the model in anisotropic volumes have not yet been tested:
 \begin{frame}{Pion mass - Hosotani vs. lattice simulation}
   \includegraphics[width=1\textwidth]{figs/Meta64x10FiniteT}
 \end{frame}
+
 
 \section{$\delta$-regime}
 
@@ -92,7 +134,7 @@ properties of the model in anisotropic volumes have not yet been tested:
       up to next-to-leading order, for a general dimension $d > 2$
             \[
         \Theta = F_\pi^2 L^{d-1} \left[1 +
-          \frac{N - 2}{4\pi F_\pi^2 L^{d-2}}
+          \frac{\cal{N} - 2}{4\pi F_\pi^2 L^{d-2}}
           \left(2\frac{d - 1}{d - 2} + ...\right) \right]
       \]
     \item in two dimensions ($d = 2$) there is a divergence of 
@@ -143,7 +185,7 @@ properties of the model in anisotropic volumes have not yet been tested:
         m_\eta^2 = \frac{2N}{F_\eta^2}\chi_T^{que}
       \]
     \item mass of the $\eta$ particle is known analytically
-      [Belvedere et al. 1979] 
+      [Belvedere et al., 1979] 
       \[
         m_\eta^2 = \frac{N}{\pi\beta}
       \]
