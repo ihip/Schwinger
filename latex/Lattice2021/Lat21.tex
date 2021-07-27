@@ -36,7 +36,7 @@
   \end{itemize}
   \begin{description}
     \item[Finite temperature]:
-      Hosotani solution has not been compared with the lattice
+      Hosotani approximate solution has not been compared with the lattice
       simulation results
     \item[$\delta$-regime]: conjecture for the residual pion mass
   \end{description}
@@ -46,11 +46,12 @@
   \begin{itemize}
     \item massless case has analytic solution
       [Belvedere et al., 1979]
-    \item one massive boson ("eta") --- $g$ is gauge coupling
+    \item $N - 1$ massless bosons ("pions")
+    \item one massive boson ("eta")
       \[
         m_\eta^2 = N\,\frac{g^2}{\pi}
       \]
-    \item $N - 1$ massless bosons ("pions")
+      where $g$ is the gauge coupling
     \item massive case (fermion mass $m > 0$) has no exact solution
     \item semiclassical prediction at infinite volume
       \[
@@ -76,7 +77,8 @@
     \item boson masses can be computed by solving this set of 
       equations in a self-consistent way
     \item we compare the Hosotani predictions for two flavors
-      with the results of the HMC simulation with Wilson fermions
+      with HMC simulation results (Wilson fermions --- fermion mass
+      $m$ is measured on the lattice by the PCAC relation)
   \end{itemize}
   %\includegraphics[width=1\textwidth]{figs/FiniteTMPiHos}
 \end{frame}
@@ -85,7 +87,7 @@
   \includegraphics[width=1\textwidth]{figs/MPi64x10vsMFiniteT_Pt2}
 \end{frame}
 
-\begin{frame}{Pion mass - Hosotani vs. lattice simulation}
+\begin{frame}{Eta mass - Hosotani vs. lattice simulation}
   \includegraphics[width=1\textwidth]{figs/Meta64x10FiniteT_Pt3}
 \end{frame}
 
@@ -107,7 +109,7 @@
       quantum rotor [Leutwyler, 1987]
     \item pion has \textit{residual mass}
       \[
-        m_\pi^R = \frac{3}{2\Theta}
+        m_\pi^R \propto \frac{1}{\Theta}
       \]
       where $\Theta$ is the moment of inertia
   \end{itemize}
@@ -130,11 +132,11 @@
           \frac{{\cal N} - 2}{4\pi F_\pi^2 L^{d-2}}
           \left(2\frac{d - 1}{d - 2} + ...\right) \right]
       \]
-    \item in two dimensions ($d = 2$) there is a divergence of 
-      the next to leading term, so we just consider the 
+    \item in two dimensions ($d = 2$) there is division by zero 
+      in the next to leading term, so we just consider the 
       leading term
       \[
-        m_\pi^R \simeq \frac{3}{2F_\pi^2 L}
+        m_\pi^R \simeq \frac{1}{2F_\pi^2 L}
       \]
     \item we verify the relation $m_\pi^R \propto 1 / L$ with
       simulation data and extract the value of pion decay
@@ -153,14 +155,14 @@
 	    \begin{tabular}{c c c c}
 	      $\beta$ & $F_\pi$ \\
 	      \hline
-	      2.0 & 0.6683(50) \\
+	      2.0 & 0.3858(29) \\
 	      \hline
-	      3.0 & 0.6681(25) \\
+	      3.0 & 0.3857(14) \\
 	      \hline
-	      4.0 & 0.6700(22) \\
+	      4.0 & 0.3868(13) \\
 	    \end{tabular}
         \[
-      	  F_\pi = 0.6688(5)
+      	  F_\pi = 0.386(2)
         \]
       \end{center}	 
   \end{columns}
@@ -205,7 +207,7 @@
       \[
         Q_T = \frac{1}{2\pi}\sum_{P}\theta_P
       \]
-      it is not possible to find analytic expression, but using the 
+      it is not possible to find an analytic expression, but using the 
       same line of reasoning it is possible to numerically compute
       $\chi_T^{que}$ to arbitrary precision
   \end{itemize}
@@ -217,12 +219,7 @@
 
 \begin{frame}{$F_\eta$ versus $F_\pi$}
   \begin{itemize}
-    \item in large $N_c$ QCD, to the order $1/N_c$
-      \[
-        F_{\eta'} = F_\pi
-      \]
-    \item in the Schwinger model nothing assures that this relation 
-      holds  \item inserting the confirmed values for $m_\eta^2$
+    \item inserting the confirmed values for $m_\eta^2$
       and $\chi_T^{que}$ 
       \[
         F_{\eta}^2 = \frac{2N}{m_\eta^2}\chi_T^{que} =
@@ -230,11 +227,16 @@
           \left(\frac{1}{4\pi^2\beta}\right) =
           \frac{1}{2\pi}
       \]
-    \item our results suggest that in the Schwinger model the two
-      decay constants differ significantly
+    \item we can compare the two decay constants
       \[
-        F_{\eta} = 0.3989 \qquad F_\pi = 0.6688(5)
+        F_\pi = 0.386(2) \quad \overset{?}{=} \quad F_{\eta} = 0.399
       \]
+    \item in large $N_c$ QCD, to the order $1/N_c$
+      \[
+        F_{\eta'} = F_\pi
+      \]
+    \item in the Schwinger model nothing assures that this relation 
+      holds  
   \end{itemize}
 \end{frame}
 
