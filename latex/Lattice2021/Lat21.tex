@@ -6,7 +6,7 @@
 \title{Finite temperature and $\delta$-regime in the Schwinger model}
 \author{
   Ivan Hip\textsuperscript{a},
-  Jaime Fabián Nieto Castellanos\textsuperscript{b},
+  Jaime Fabián Nieto Castellanos\textsuperscript{b},\\
   Wolfgang Bietenholz\textsuperscript{b}}
 \institute{
   \textsuperscript{a}University of Zagreb, Croatia\\
@@ -36,13 +36,13 @@
   \end{itemize}
   \begin{description}
     \item[Finite temperature]:
-      Hosotani approximate solution has not been compared with the lattice
+      Hosotani et al. approximate solution has not been compared with the lattice
       simulation results
     \item[$\delta$-regime]: conjecture for the residual pion mass
   \end{description}
 \end{frame}
 
-\begin{frame}{N-flavor Schwinger model}
+\begin{frame}{$N$-flavor Schwinger model}
   \begin{itemize}
     \item massless case has analytic solution
       [Belvedere et al., 1979]
@@ -53,7 +53,7 @@
       \]
       where $g$ is the gauge coupling
     \item massive case (fermion mass $m > 0$) has no exact solution
-    \item semiclassical prediction at infinite volume
+    \item semiclassical prediction at infinite volume [Hetrick, Hosotani and Iso, 1995]
       \[
         m_\pi = \left(4e^{2\gamma}\sqrt{\frac{2}{\pi}}\right)
           (m^2 g)^{1/3} = 2.1633...(m^2 g)^{1/3}
@@ -106,12 +106,13 @@
         L_t\gg \xi \gtrsim L
       \]
     \item the system is quasi one dimensional - approximation by
-      quantum rotor [Leutwyler, 1987]
-    \item pion has \textit{residual mass}
+      quantum mechanical rotor [Leutwyler, 1987]
+    \item pion has \textbf{\textit{residual mass}}
       \[
-        m_\pi^R \propto \frac{1}{\Theta}
+        m_\pi^R = \frac{{\cal N} - 1}{2\Theta}
       \]
-      where $\Theta$ is the moment of inertia
+    \item ${\cal N} - 1$ is the number of pions and $\Theta$ is the moment of inertia
+      %where $\Theta$ is the moment of inertia
   \end{itemize}
 \end{frame}
 
@@ -132,11 +133,11 @@
           \frac{{\cal N} - 2}{4\pi F_\pi^2 L^{d-2}}
           \left(2\frac{d - 1}{d - 2} + ...\right) \right]
       \]
-    \item in two dimensions ($d = 2$) there is division by zero 
-      in the next to leading term, so we just consider the 
-      leading term
+    \item for ${\cal N} = 2$ we ignore the next to leading term despite
+      the division by $d - 2$,
+      so we just consider the leading term
       \[
-        m_\pi^R \simeq \frac{1}{2F_\pi^2 L}
+        m_\pi^R \simeq \frac{{\cal N} - 1}{2F_\pi^2 L}
       \]
     \item we verify the relation $m_\pi^R \propto 1 / L$ with
       simulation data and extract the value of pion decay
@@ -171,7 +172,7 @@
 
 \section{Witten-Veneziano}
 
-\begin{frame}{Witten-Veneziano formula}
+\begin{frame}{Witten-Veneziano formula for Schwinger model}
   \begin{itemize}
     \item in the chiral $N$-flavor Schwinger model the
       Witten-Veneziano formula is simplified to [Seiler and
@@ -179,7 +180,7 @@
       \[
         m_\eta^2 = \frac{2N}{F_\eta^2}\chi_T^{que}
       \]
-    \item mass of the $\eta$ particle is known analytically
+    \item $m_\eta$ in the chiral limit is known analytically
       [Belvedere et al., 1979] 
       \[
         m_\eta^2 = \frac{N}{\pi\beta}
@@ -192,21 +193,23 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Quenched topological susceptibility}
+\begin{frame}{Quenched topological susceptibility on the lattice}
   \begin{itemize}
     \item {[Bardeen et al., 1998]} were able to analytically
       compute $\chi_T^{que}$ on the lattice
       \[
         \beta\chi_T^{que} = \frac{I_1(\beta)}{4 \pi^2 I_0(\beta)}
       \]
+      \setlength{\abovedisplayskip}{6pt}
       by using an alternative definition of topological charge
       \[
         Q_S = \frac{1}{2\pi}\sum_{P}\sin(\theta_P)
       \]
+    \setlength{\belowdisplayskip}{4pt} 
     \item for the usual definition of topological charge
       \[
         Q_T = \frac{1}{2\pi}\sum_{P}\theta_P
-      \]
+      \] 
       it is not possible to find an analytic expression, but using the 
       same line of reasoning it is possible to numerically compute
       $\chi_T^{que}$ to arbitrary precision
@@ -229,7 +232,7 @@
       \]
     \item we can compare the two decay constants
       \[
-        F_\pi = 0.386(2) \quad \overset{?}{=} \quad F_{\eta} = 0.399
+        F_\pi \simeq 0.386 \quad \overset{?}{=} \quad F_{\eta} = 0.399
       \]
     \item in large $N_c$ QCD, to the order $1/N_c$
       \[
