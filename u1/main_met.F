@@ -3,7 +3,7 @@ C     ******************************************************************
 C     ******************************************************************
 C     **                    **                                        **
 C     **  METROPOLIS        **    I. Hip, 29 Sep 98                   **
-C     **                    **    Last modified: 29 Sep 98 (hip)      **
+C     **                    **    Last modified: 21 Aug 21 (Hip)      **
 C     **                    **                                        **
 C     ******************************************************************
       parameter (ndrc=2,ngrp=1,ndim=2)
@@ -12,7 +12,7 @@ C     ******************************************************************
       parameter (nall=2*ndrc*ngrp*nsite)
 
 C     >>> ncomp - number of computables
-      parameter (ncomp=8)
+      parameter (ncomp=5)
 C     >>> nbufsize - size of data buffer
       parameter (nbufsize=10000)
 C     ------------------------------------------------------------------
@@ -55,7 +55,7 @@ C     >>> pure gauge means \kappa = 0
 
 C     >>> interactive parameter input
       write(*, *)
-      write(*, *) 'Metropolis (29 Sep 98 / 12 Jul 21)'
+      write(*, *) 'Metropolis (29 Sep 98 / 24 Aug 21)'
       write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
       write(*, *)
       write(*, '(1x, ''start beta     = '', $)')
@@ -113,14 +113,11 @@ C     >>> - results of measurements in b[beta]k[kappa].data
       data_name = 'b'//c_beta(2:6)//'k'//c_kappa(2:6)//'.data'
 
 C     >>> prepare textual data description
-      c_computable(1) = 'acc'
-      c_computable(2) = 'niter'
-      c_computable(3) = 'eps'
-      c_computable(4) = 'sgauge / nsites'
-      c_computable(5) = 'topological charge'
-      c_computable(6) = 'topological charge (sin)'
-      c_computable(7) = 'beta * chiT'
-      c_computable(8) = 'beta * chiT (sin)'
+      c_computable(1) = 'sgauge / nsites'
+      c_computable(2) = 'topological charge'
+      c_computable(3) = 'topological charge (sin)'
+      c_computable(4) = 'beta * chiT'
+      c_computable(5) = 'beta * chiT (sin)'
 
       open(unit=7,file=conf_name,form='unformatted',status='unknown')
       open(unit=8,file=data_name,form='unformatted',status='unknown')
@@ -184,16 +181,13 @@ c	  if(mod(ii, 100) .eq. 0) call unitarize(u, ngaug)
 	end do
 	
 C       >>> measurements
-	computable(1, ns) = float(iacc)
-	computable(2, ns) = float(niter)
-	computable(3, ns) = sngl(eps)
-      computable(4, ns) = sngl(sgauge(beta, u) / dble(nsite))
+      computable(1, ns) = sngl(sgauge(beta, u) / dble(nsite))
 C      print *, 'sgauge: ', sngl(sgauge(beta, u) / dble(nsite))
-      computable(5, ns) = float(itopch())
+      computable(2, ns) = float(itopch())
 C      print *, 'itopch: ', float(itopch())
-      computable(6, ns) = sngl(sintopch())
-      computable(7, ns) = sngl(beta * itopch()**2 / dble(nsite))
-      computable(8, ns) = sngl(beta * sintopch()**2 / dble(nsite))
+      computable(3, ns) = sngl(sintopch())
+      computable(4, ns) = sngl(beta * itopch()**2 / dble(nsite))
+      computable(5, ns) = sngl(beta * sintopch()**2 / dble(nsite))
       
 	if((ns .eq. nsave) .or. (it .eq. nmeas)) then
 	  rewind 7

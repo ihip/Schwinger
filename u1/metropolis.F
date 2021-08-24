@@ -133,7 +133,7 @@ c      print *,'Acceptance = ',beta,acc,eps
 
 
 C     ******************************************************************
-      subroutine gauge_mk_index
+      subroutine gauge_mk_index()
 C	OUT COMMON/gauge_index_arrays/ ...
 C     ------------------------------------------------------------------
 C     Part of package:  gauge_met_c

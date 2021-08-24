@@ -1,4 +1,4 @@
-C v3: 07 Jan 97, ivh - Last modified: 15 Jan 97, ivh
+C v3: 07 Jan 97, ivh - Last modified: 25 Aug 21, ivh
 
       subroutine save_header(nf, nw, c_ident, nspace, ntime, beta,
      &  akap, eps, nsteps, ntherm, nmeas, mstep, istart, iseed)
@@ -41,7 +41,7 @@ C     >>> WARNING: nonportable code !!!
       if(nw .eq. 1) then
         write(*, 888)
         write(*, *)
-        write(*, *) '                           H M C 2 D F U 1 (v3)'
+        write(*, *) '                               Metropolis U(1)'
         write(*, *)
         write(*, 888)
         write(*, 1001) nspace, ntime
@@ -61,7 +61,7 @@ C     >>> WARNING: nonportable code !!!
         write(*, 1013) iseed
         write(*, 888)
 888     format(1x, 13('******'))
-1001    format(' 2 Flavor Schwinger Model on a ',i3,' x',i3,' Lattice')
+1001    format(' pure gauge U(1) on a ',i3,' x',i3,' Lattice')
 1002    format(' Integration: ', a32)
 1003    format(' Inversion: ', a32, ' (', a32, ')')
 1004    format(' Invers(1): ', a32, ' (', a32, ')')
