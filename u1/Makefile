@@ -5,8 +5,8 @@
 #
 # lattice size:
 # [Hip: for metropolis it is not clear if NTIME != NSPACE is ok...]
-NTIME = 16
-NSPACE = 16
+NTIME = 20
+NSPACE = 20
 #
 ########################################################################
 F77 = gfortran
@@ -21,7 +21,7 @@ metropolis: main_met.o metropolis.o save.o mk_index.o create_u.o\
 		sgauge.o itopch.o sintopch.o v_dummy.o Makefile
 	$(F77) $(OPTIMIZATION) main_met.o metropolis.o mk_index.o\
 		create_u.o sgauge.o save.o itopch.o sintopch.o v_dummy.o\
-		$(MYLIB) -o met$(NTIME).x
+		$(MYLIB) -o met_L$(NSPACE)x$(NTIME).x
 
 main_met.o: main_met.F Makefile
 	$(F77) $(FFLAGS) main_met.F

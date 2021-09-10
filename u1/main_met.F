@@ -3,7 +3,7 @@ C     ******************************************************************
 C     ******************************************************************
 C     **                    **                                        **
 C     **  METROPOLIS        **    I. Hip, 29 Sep 98                   **
-C     **                    **    Last modified: 21 Aug 21 (Hip)      **
+C     **                    **    Last modified: 25 Aug 21 (Hip)      **
 C     **                    **                                        **
 C     ******************************************************************
       parameter (ndrc=2,ngrp=1,ndim=2)
@@ -30,9 +30,12 @@ C     >>> declarations for functions
 
 C     >>> file names handling
       character*32 start_file
-      character*6 c_beta, c_kappa
-      character*17 conf_name, data_name
+      character*4 c_nspace, c_ntime
+      character*10 c_size
+      character*6 c_beta, c_iconf
+      character*27 conf_name, data_name
       character*8 c_ident
+      character*1 c_saveconf
 
 C     >>> declarations needed for .data file
       character*64 c_computable(ncomp)
@@ -55,15 +58,11 @@ C     >>> pure gauge means \kappa = 0
 
 C     >>> interactive parameter input
       write(*, *)
-      write(*, *) 'Metropolis (29 Sep 98 / 24 Aug 21)'
+      write(*, *) 'Metropolis (29 Sep 98 / 25 Aug 21)'
       write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
       write(*, *)
-      write(*, '(1x, ''start beta     = '', $)')
-      read(*, *) beta_start
-      write(*, '(1x, ''end beta       = '', $)')
-      read(*, *) beta_end
-      write(*, '(1x, ''increment beta = '', $)')
-      read(*, *) beta_inc
+      write(*, '(1x, ''beta = '', $)')
+      read(*, *) beta
       write(*, '(1x, ''ntherm = '', $)')
       read(*, *) ntherm
       write(*, '(1x, ''nmeas = '', $)')
@@ -75,10 +74,11 @@ C     >>> interactive parameter input
       if(nsave .gt. nbufsize) stop 'Maximum buffer size exceeded'
       write(*, '(1x, ''istart (0=COLD, 1=HOT, 2=FILE) = '', $)')
       read(*,*) istart
-      if(istart .eq. 2) then
-	write(*, '(1x, ''start file = '', $)')
-	read(*, '(a)') start_file
-      end if
+      if(istart .eq. 2) stop 'option 2 not yet implemented!'
+c	  write(*, '(1x, ''start file = '', $)')
+c	  read(*, '(a)') start_file
+      write(*, '(1x, ''save configurations? [Y/n] '', $)')
+      read(*, '(a)') c_saveconf
       write(*, *)
 
 C     >>> initialize random number generator (seed is wall-time and host
@@ -90,7 +90,7 @@ C      iseed = 38768509
       call cbl_rc_seed(iseed)
 
 C     >>> initialize gauge index arrays
-      call gauge_mk_index
+      call gauge_mk_index()
 
 C     >>> initialize indexes for sgauge & itopch
       call mk_index(ind)
@@ -98,19 +98,16 @@ C     >>> initialize indexes for sgauge & itopch
 C     >>> initialization of gauge fields
       call create_u(istart, u, start_file)
 
-C     >>> here starts beta loop: beta = beta_start, beta_end, beta_inc
-      beta = beta_start
-10    continue
+C     >>> configuration counter
+      iconf = 1
 
-C     >>> prepare the names for configuration and data files
-C     >>> - gauge field configuration is saved in b[beta]k[kappa].conf
-C     >>> - results of measurements in b[beta]k[kappa].data
+C     >>> prepare the file name L[nspace]x[ntime]_b[beta]k[kappa].data
+      write(c_nspace, '(i4)') NSPACE + 1000
+      write(c_ntime, '(i4)') NTIME + 1000
+      c_size = 'L'//c_nspace(2:4)//'x'//c_ntime(2:4)//'_b'
       ival = int((beta + 100.0000001d0) * 1000.0d0)
       write(c_beta, '(i6)') ival
-      ival = int((akap + 1.000000001d0) * 100000.0d0)
-      write(c_kappa, '(i6)') ival
-      conf_name = 'b'//c_beta(2:6)//'k'//c_kappa(2:6)//'.conf'
-      data_name = 'b'//c_beta(2:6)//'k'//c_kappa(2:6)//'.data'
+      data_name = c_size//c_beta(2:6)//'k00000.data'
 
 C     >>> prepare textual data description
       c_computable(1) = 'sgauge / nsites'
@@ -119,7 +116,6 @@ C     >>> prepare textual data description
       c_computable(4) = 'beta * chiT'
       c_computable(5) = 'beta * chiT (sin)'
 
-      open(unit=7,file=conf_name,form='unformatted',status='unknown')
       open(unit=8,file=data_name,form='unformatted',status='unknown')
 
       write(c_ident, '(a8)') '%data-v3'
@@ -141,22 +137,11 @@ C .data specific part - saving description of computables
 C     ------------------------------------------------------------------
 C     Equilibration - thermalization
 C     ------------------------------------------------------------------
-      do 100 it = 1, ntherm
-
-	call gauge_met_c(beta)
-
-c	>>> unclear if unitarization is necessary...
-c	if(mod(it, 100) .eq. 0) call unitarize(u, ngaug)
-
-	if(mod(it, nsave) .eq. 0) then
-	  rewind 7
-	  write(7) NTIME, NSPACE
-          write(7) beta, akap, eps
-          write(7) it
-	  write(7) u
-	  endfile 7
-	end if
-100   continue
+      do it = 1, ntherm
+	  call gauge_met_c(beta)
+c	  >>> unclear if unitarization is necessary...
+c	  if(mod(it, 100) .eq. 0) call unitarize(u, ngaug)
+      end do
 
 C     ------------------------------------------------------------------
 C     Measuring  updates
@@ -164,44 +149,55 @@ C     ------------------------------------------------------------------
 
       call cbl_cputime(0, tcpu)
 
-      ns = 1
+c     >>> measurement counter
       it = 0
+c     >>> counter for nsave
+      ns = 0
+c     >>> configuration counter
+      iconf = 0
+c     >>> timer
       cumtime = 0.0d0
+
+c     loop from 1 to nmeas
 200   it = it + 1
 
-C       >>> update
-	do i = 1, mstep
-	  ii = (it - 1) * mstep + i
-
+C     >>> update
+	do i = 1, mstep  
 c	  >>> unclear if unitarization is necessary...
+c       ii = (it - 1) * mstep + i
 c	  if(mod(ii, 100) .eq. 0) call unitarize(u, ngaug)
-
 	  call gauge_met_c(beta)
-
 	end do
-	
-C       >>> measurements
+      ns = ns + 1
+
+C     >>> measurements
       computable(1, ns) = sngl(sgauge(beta, u) / dble(nsite))
-C      print *, 'sgauge: ', sngl(sgauge(beta, u) / dble(nsite))
       computable(2, ns) = float(itopch())
-C      print *, 'itopch: ', float(itopch())
       computable(3, ns) = sngl(sintopch())
       computable(4, ns) = sngl(beta * itopch()**2 / dble(nsite))
       computable(5, ns) = sngl(beta * sintopch()**2 / dble(nsite))
-      
-	if((ns .eq. nsave) .or. (it .eq. nmeas)) then
-	  rewind 7
-	  write(7) NTIME, NSPACE
-          write(7) beta, akap, eps
-          write(7) ntherm + it * mstep
-	  write(7) u
-	  endfile 7
-	  do i = 1, nsave
-	    write(8) (computable(j, i), j = 1, ncomp)
-	  end do
+ 
+	if(ns .eq. nsave) then
+c       >>> save the computables in the .data file
+        do i = 1, nsave
+          write(8) (computable(j, i), j = 1, ncomp)
+        end do
+        if(c_saveconf .eq. 'Y') then
+c         >>> save the gauge configuration in .conf file
+          iconf = iconf + 1
+          write(c_iconf, '(i6)') 100000 + iconf 
+          conf_name = c_size//c_beta(2:6)//'i'//c_iconf(2:6)//'.conf'
+          open(unit=7,file=conf_name,form='unformatted',status='new')
+	      write(7) NTIME, NSPACE
+            write(7) beta, akap, eps
+            write(7) ntherm + it * mstep
+	      write(7) u
+	    close(7)
+        end if
+
 	  ns = 0
 	end if
-	ns = ns + 1
+
       if(it .lt. nmeas) go to 200
 
       call cbl_cputime(1, tcpu)
@@ -209,9 +205,6 @@ C      print *, 'itopch: ', float(itopch())
       call save_tail(8, 0, 0, 0, 0, tcpu)
 
       close(8)
-
-      beta = beta + beta_inc
-      if(beta .le. beta_end + 0.00000001) goto 10
 
 999   continue
 
