@@ -3,7 +3,7 @@ set terminal pdfcairo #size 4in, 3in
 set output "BeakDiagram.pdf"
 
 set xlabel "1 / {/Symbol b}"
-set ylabel "{/Symbol b} {/Symbol c}_T"
+set ylabel "{/Symbol b} {/Symbol c}_t^q"
 
 set key right center
 
