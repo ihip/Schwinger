@@ -2,8 +2,8 @@
 # ihip, 24 Nov 07; last modified: 10 Aug 20 (Linux - Ubuntu)           #
 ########################################################################
 
-NTIME = 20
-NSPACE = 20
+NTIME = 8
+NSPACE = 64
 
 ########################################################################
 # Linux version:
@@ -28,6 +28,12 @@ eig: main_eig.o hf.o mk_index.o itopch.o lapackeig.o scalp.o\
 	$(FC) $(OPTIMIZATION) main_eig.o hf.o mk_index.o itopch.o\
            scalp.o normalize.o lapackeig.o overlap.o save_eig.o\
           $(MYLIB) $(LAPACK) -o eig$(NSPACE)x$(NTIME).x
+
+sigma: sigma.o Makefile
+	$(FC) $(OPTIMIZATION) sigma.o -o sigma.x	
+
+sigma.o: sigma.F Makefile
+	$(FC) $(FFLAGS) sigma.F
 
 main_eig.o: main_eig.F Makefile
 	$(FC) $(FFLAGS) main_eig.F

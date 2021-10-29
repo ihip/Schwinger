@@ -5,8 +5,8 @@
 #
 # lattice size:
 # [Hip: for metropolis it is not clear if NTIME != NSPACE is ok...]
-NTIME = 20
-NSPACE = 20
+NTIME = 8
+NSPACE = 64
 #
 ########################################################################
 F77 = gfortran
