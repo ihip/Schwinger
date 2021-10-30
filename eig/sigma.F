@@ -1,10 +1,11 @@
-c	>>> sigma >>> Ivan Hip >>> 2008-01-19 >>> 2021-10-29	
+c	>>> sigma >>> Ivan Hip >>> 2008-01-19 >>> 2021-10-30	
 
 #define MAX_LIST_LEN 10000
 #define MAX_EIGEN 1000
 
 	character*64 listname, eigfile, logname
-	real*8 re, im, m
+	real*8 beta, g, fmass
+	real*8 re, im
 	complex*16 lambda(MAX_EIGEN), sum, pro
 	complex*16 sigma(MAX_LIST_LEN)
 	real*8 det(MAX_LIST_LEN)
@@ -12,13 +13,14 @@ c	>>> sigma >>> Ivan Hip >>> 2008-01-19 >>> 2021-10-29
 	real*8 aa, var
 
 	write(*, *)
-	write(*, *) 'Sigma / 2021-10-29'
+	write(*, *) 'Sigma / 2021-10-30'
 	write(*, *) '=================='
 	write(*, *)
 
 c       >>> read listname
 	write(*, '(1x, ''List name of .eig files: '', $)')
 	read(*, '(a)') listname
+	write(*, *)
 
 	open(1, file = listname, form = 'formatted', status = 'old')
 
@@ -26,23 +28,26 @@ c	>>> open log file
 c	logname = listname(1:lnblnk(listname))//'.sig'
 c	open(3, file = logname, form = 'formatted', status = 'unknown')
 
+c	>>> read beta
+	write(*, '(1x, ''beta = '', $)')
+	read(*, *) beta
+	g = 1.0d0 / dsqrt(beta)
+
 c	>>> read number of flavors
 	write(*, '(1x, ''N_f = '', $)')
 	read(*, *) nf
-	write(*, *)
+
+c	>>> read mass parameter
+	write(*, '(1x, ''fermion mass upper bound: '', $)')
+	read(*, *) fmass
 
 c	>>> read number of jackknife blocks
 	write(*, '(1x, ''jkblocks = '', $)')
 	read(*, *) jkblocks
 	write(*, *)
 
-c	>>> read mass parameter
-c	write(*, '(1x, ''mass: '', $)')
-c	read(*, *) m
-c	write(*, *)
-
-c	  >>> loop over m
-      m = 0.15d0
+c	  >>> loop over fmass
+c      fmass = 0.15d0
 
 22    ifile = 0
 c     >>> loop over all configurations
@@ -68,9 +73,9 @@ c	  >>> compute sigma
 	  pro = dcmplx(1.0d0, 0.0)
       do i = 1, neigen
 	    sum = sum + (dcmplx(1, 0) - lambda(i) / dcmplx(2, 0)) /
-     & ((dcmplx(1, 0) - m / dcmplx(2, 0)) * lambda(i) + m)
+     & ((dcmplx(1, 0) - fmass / dcmplx(2, 0)) * lambda(i) + fmass)
 	    pro = pro * 
-     & ((dcmplx(1, 0) - m / dcmplx(2, 0)) * lambda(i) + m)
+     & ((dcmplx(1, 0) - fmass / dcmplx(2, 0)) * lambda(i) + fmass)
 	  end do
 	  det(ifile) = dreal(pro) / 1.0d50
 	  sigma(ifile) = (sum / dcmplx(nsites, 0)) * det(ifile)**nf
@@ -98,13 +103,13 @@ c	  >>> compute njack sigmas
 c	  print *, 'aa = ', aa
 c	  print *, 'sqrt(var) = ', dsqrt(var)
 
-	  write(*, '(1x, f6.3, $)') m
-	  write(*, *) sigma_av, dsqrt(var)
+	  write(*, '(1x, f6.3, $)') fmass * dsqrt(beta)
+	  write(*, *) sigma_av * dsqrt(beta), dsqrt(var) * dsqrt(beta)
 
 c	  >>> end of loop over m
-      m = m - 0.001d0
+      fmass = fmass - 0.001d0
 	  rewind 1
-	  if(m .gt. 0) goto 22
+	  if(fmass .gt. 0) goto 22
 
 	  close(1)
 	  write(*, *)
