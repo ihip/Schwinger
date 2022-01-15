@@ -1,4 +1,4 @@
-c	>>> sigma >>> Ivan Hip >>> 2008-01-19 >>> 2021-10-30	
+c	>>> sigma >>> Ivan Hip >>> 2008-01-19 >>> 2022-01-15	
 
 #define MAX_LIST_LEN 10000
 #define MAX_EIGEN 1000
@@ -13,7 +13,7 @@ c	>>> sigma >>> Ivan Hip >>> 2008-01-19 >>> 2021-10-30
 	real*8 aa, var
 
 	write(*, *)
-	write(*, *) 'Sigma / 2021-10-30'
+	write(*, *) 'Sigma / 2022-01-15'
 	write(*, *) '=================='
 	write(*, *)
 
@@ -74,10 +74,13 @@ c	  >>> compute sigma
       do i = 1, neigen
 	    sum = sum + (dcmplx(1, 0) - lambda(i) / dcmplx(2, 0)) /
      & ((dcmplx(1, 0) - fmass / dcmplx(2, 0)) * lambda(i) + fmass)
-	    pro = pro * 
+c	  >>> WARNING: normalization of the determinant
+	    pro = pro * 0.5d0 *
      & ((dcmplx(1, 0) - fmass / dcmplx(2, 0)) * lambda(i) + fmass)
 	  end do
-	  det(ifile) = dreal(pro) / 1.0d50
+	  det(ifile) = dreal(pro)
+c	  >>> check the magnitude of the determinant
+c	  write(*, *) 'det = ', det(ifile)
 	  sigma(ifile) = (sum / dcmplx(nsites, 0)) * det(ifile)**nf
 
 	  go to 11
