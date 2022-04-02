@@ -1,8 +1,5 @@
-c >>> riješiti učitavanje nu i nuf
-c >>> pokrpati sve Makefileove
-
 	program compute_inverse_of_PHF
-c       hip - 17 Jun 08 - last modified: 26 Jun 08
+c       hip - 17 Jun 08 - last modified: 2022-04-02
 
 c       >>> necessary initializations for 2D U(1)
 	parameter (ndrc=2,ngrp=1,ndim=2)
@@ -32,7 +29,7 @@ c       >>> determinant - needed for compatibility with massan
 	parameter (detr=0.0,edetr=0.0)
 
 c       >>> gauge file name
-	character*64 listname, fname, maspname, logname
+	character*64 outname, listname, fname, maspname, logname
 
 c       >>> 'dense' working array
 	complex*16 a(nferm, nferm)
@@ -42,13 +39,10 @@ c	>>> shift of the hy-fermions before Neubergerization
 
 	real*8 rtol
 
-c	>>> needed for tests
-	complex*16 sum
-
 C       ------------------------------------------------------------------
 	common /gauge_fields/ u
 	common /kappa/ akap
-        common /dummy_main/ a, g 
+	common /dummy_main/ a, g 
 C       ------------------------------------------------------------------
 
 C       >>> initialize index arrays
@@ -56,8 +50,8 @@ C       >>> initialize index arrays
 	call make_ihf()
 
 	write(*, *)
-	write(*,'(1x,''Compute inverse of PHF (hip, 26 Jun 08)'')')
-	write(*, *)   '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+	write(*,'(1x,''Compute inverse of PHF (hip, 2022-04-02)'')')
+	write(*, *)   '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	write(*, *)
 	write(*, '(1x, ''Lattice:   '', i2, '' x '', i2)') NTIME, NSPACE
 	write(*, *)
@@ -73,15 +67,21 @@ c	>>> read mass
 	write(*, '(1x, ''mass: '', $)')
 	read(*, *) mass
 
+c	>>> read output name
+	write(*, '(1x, ''Output name (#.masp, #.log): '', $)')
+	read(*, *) outname
+
 c	>>> open log file
-	logname = listname(1:lnblnk(listname))//'.lgm'
-        write(*, *) 'logname: ', logname
+	logname = outname(1:lnblnk(outname))//'.lgm'
+	write(*, *) 'logname: ', logname
 	open(2, file = logname, form = 'formatted', status = 'unknown')
 
 c	>>> open .masp file
-	write(*, '(1x, ''.masp name: '', $)')
-	read(*, *) maspname
+	maspname = outname(1:lnblnk(outname))//'.masp'
 	open(3, file = maspname, form = 'unformatted', status = 'unknown')
+	write(*, *) '.masp file created: ', maspname
+	write(*, *)
+
 c	>>> write header
 	nmeas = 0
 	beta = 5.0
@@ -94,16 +94,17 @@ c	write(*, '(1x, ''rtol: '', $)')
 c	read(*, *) rtol
 	rtol = 0.000001
 
-	write(*, '(1x, ''Top. charge (0-selected, 1-all): '', $)')
-	read(*, *) iall
-	if(iall .eq. 0) then
-	  write(*, '(1x, ''  Which |nu| to collect: '', $)')
-	  read(*, *) inu
-	end if
-	write(*, *)
+c	write(*, '(1x, ''Top. charge (0-selected, 1-all): '', $)')
+c	read(*, *) iall
+c	if(iall .eq. 0) then
+c	  write(*, '(1x, ''  Which |nu| to collect: '', $)')
+c	  read(*, *) inu
+c	end if
+c	write(*, *)
+	iall = 1
 
 c       >>> main loop
-11	read(1, *, end = 99) fname, nu, nuf
+11	read(1, '(a)', end = 99) fname
 	nfiles = nfiles + 1
 	write(*, *) 'Processing: ', fname
 
@@ -115,11 +116,14 @@ c	    write(*, *) i, j, u(i, j)
 c	  end do
 c	end do
 
+c	>>> topological charge (geometrical definition)
+	nu = itopch()
+
 	if((iall .eq. 1) .or. (nuf .eq. inu)) then
 
 	i0 = i0 + 1
 	write(*, *) 'meas. no. ### ', i0
-        write(*, *) 'nuf = ', nuf
+        write(*, *) 'nu = ', nu
 
 c       >>> fill in of appropriate Dirac operator
 
@@ -150,13 +154,6 @@ c       >>> compute inverse (a becomes inverse!)
 	write(*, *) 'inversion'
 	call invert(a)
 
-c	>>> compute pbp
-c	sum = dcmplx(0.0d0, 0.0d0)
-c	do i = 1, nferm
-c	  sum = sum + a(i, i) 
-c	end do
-c	write(*, *) 'pbp = ', sum
-
 c ------------- taken from np.F (version: 02 Feb 1999) ----------------
 c       >>> compute condensates
 	pbp = op_pbp_e(a)
@@ -178,7 +175,7 @@ c ---------------------------------------------------------------------
 c	>>> write entry to log-file
 	write(2, *) fname(1:lnblnk(fname)), mass, nu, nuf, pbp, pbg5
 
-	write(*, *) 
+	write(*, *) fname, 'ok!'
 
 	end if
 
@@ -195,7 +192,3 @@ c	>>> close list-file
 	close(1)
 
 	end
-
-
-
-

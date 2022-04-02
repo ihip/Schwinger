@@ -1,9 +1,9 @@
 ########################################################################
-# Hip, 17 Jun 08; last modified: 17 Jun 08 (Platform: Linux - Fedora 7)#
+# Hip, 17 Jun 08; last modified: 2022-03-24 (x86_64 Ubuntu 20.04 LTS)  #
 ########################################################################
 
-NTIME = 16
-NSPACE = 16
+NTIME = 20
+NSPACE = 20
 
 ########################################################################
 # Linux version:
@@ -47,8 +47,11 @@ scalp.o: scalp.F Makefile
 neuberger.o: neuberger.F Makefile
 	$(FC) $(FFLAGS) neuberger.F
 
-readconf.o: readconf.c Makefile
-	$(CC) $(CFLAGS) readconf.c
+readconf.o: readconf.F Makefile
+	$(FC) $(FFLAGS) readconf.F
+
+#readconf.o: readconf.c Makefile
+#	$(CC) $(CFLAGS) readconf.c
 
 ########################################################################
 
