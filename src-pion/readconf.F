@@ -1,5 +1,5 @@
 C     ******************************************************************
-      subroutine readconf(fname, u)
+      subroutine readconf(fname, beta, u)
 C     ******************************************************************
 C     **                    **                                        **
 C     **  READCONF          **  Subroutine by I. Hip, 2022-03-24      **
@@ -9,7 +9,7 @@ C     Read gauge fields u
 C     ------------------------------------------------------------------
 C     Input  variables:  fname (file with saved configuration)
 C     ------------------------------------------------------------------
-C     Output variables:  u (gauge field)
+C     Output variables:  beta, u (gauge field)
 C     ******************************************************************
       parameter (ndrc=2,ngrp=1,ndim=2)
       parameter (nsite=NTIME*NSPACE)

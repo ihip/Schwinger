@@ -18,10 +18,10 @@ FFLAGS = -c $(OPTIMIZATION) -DNTIME=$(NTIME) -DNSPACE=$(NSPACE)
 CFLAGS = -c -DNTIME=$(NTIME) -DNSPACE=$(NSPACE)
 
 inv: main_inv.o hf.o itopch.o scalp.o readconf.o pbp.o imassp.o\
-     neuberger.o invert.o Makefile
+     neuberger.o invert.o wdet.o Makefile
 	$(FC) $(OPTIMIZATION) main_inv.o hf.o itopch.o scalp.o\
-          readconf.o neuberger.o invert.o pbp.o imassp.o\
-          $(MYLIB) $(LAPACK) -o inv$(NTIME).x
+          readconf.o neuberger.o invert.o pbp.o imassp.o wdet.o\
+          $(MYLIB) $(LAPACK) -o dsp_L$(NSPACE)x$(NTIME).x
 
 main_inv.o: main_inv.F Makefile
 	$(FC) $(FFLAGS) main_inv.F
@@ -52,6 +52,9 @@ readconf.o: readconf.F Makefile
 
 #readconf.o: readconf.c Makefile
 #	$(CC) $(CFLAGS) readconf.c
+
+wdet.o: wdet.F Makefile
+	$(FC) $(FFLAGS) wdet.F
 
 ########################################################################
 
