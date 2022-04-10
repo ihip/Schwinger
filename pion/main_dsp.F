@@ -1,5 +1,5 @@
 	program compute_inverse_of_PHF
-c   >>> Hip / 17 Jun 08 / last modified: 2022-04-09
+c   >>> Hip / 17 Jun 08 / last modified: 2022-04-10
 
 c   >>> necessary initializations for 2D U(1)
 	parameter (ndrc=2,ngrp=1,ndim=2)
@@ -19,7 +19,7 @@ c   >>> gauge fields
 	complex*16 u(nsite, ndim)
 
 c	>>> fermion mass
-	real*8 fmass, massscale
+	real*8 fmass, fmass_start, fmass_end, fmass_step, massscale
 
 c   >>> some necessary definitions
 	real*8 beta, akap, eps, rtol 
@@ -28,7 +28,7 @@ c   >>> determinant
 	real*8 detr, edetr
 
 c   >>> file names handling
-	character*64 listname, outname, cfname, maspname, logname
+	character*64 listname, outname, cfname, maspname
 	character*4 c_nspace, c_ntime
 	character*10 c_size
 	character*6 c_beta, c_fmass
@@ -52,11 +52,14 @@ C   >>> initialize index arrays
 	call mk_index()
 	call make_ihf()
 
+c	>>> set mu_shift = 1.0d0
+	mu_shift = 1.0d0
+
 C	>>> set tolerance for identification of real eigenvalues
 	rtol = 1.0d-12
 
 	write(*, *)
-	write(*,'(1x,''Compute inverse of PHF (Hip, 2022-04-09)'')')
+	write(*,'(1x,''Compute inverse of PHF / Hip, 2022-04-10'')')
 	write(*, *)   '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	write(*, *)
 	write(*, '(1x, ''Lattice:   '', i2, '' x '', i2)') NTIME, NSPACE
@@ -73,25 +76,18 @@ c	>>> count configurations
 	nmeas = nmeas + 1
 	goto 22
 
-33	rewind(1)
+33	close(1)
 	write(*, *) 'nmeas = ', nmeas
 	write(*, *)	
 
 c	>>> read fermion mass
-	write(*, '(1x, ''fermion mass: '', $)')
-	read(*, *) fmass
-
-c	>>> read output name
-	write(*, '(1x, ''Output name (#.masp, #.log): '', $)')
-	read(*, *) outname
-
-c	>>> open log file
-	logname = outname(1:lnblnk(outname))//'.lgm'
-	write(*, *) 'logname: ', logname
-	open(2, file = logname, form = 'formatted', status = 'unknown')
-
-c	>>> set mu_shift = 1.0d0
-	mu_shift = 1.0d0
+	write(*, '(1x, ''Fermion mass'')')
+	write(*, '(1x, ''  start: '', $)')
+	read(*, *) fmass_start
+	write(*, '(1x, ''  end:   '', $)')
+	read(*, *) fmass_end
+	write(*, '(1x, ''  step:  '', $)')
+	read(*, *) fmass_step
 
 	write(*, '(1x, ''Top. charge (0-selected, 1-all): '', $)')
 	read(*, *) iall
@@ -101,8 +97,16 @@ c	>>> set mu_shift = 1.0d0
 	end if
 	write(*, *)
 
-c   >>> main loop
+c   >>> main loop over fmass
+	fmass = fmass_start
+1	continue
+	write(*, *)
+	write(*, *) '######### fermion mass = ', fmass, '#########'
+	write(*, *)
+
+c	>>> loop over all configurations for a given fmass
 	nfiles = 0
+	open(1, file = listname, form = 'formatted', status = 'old')	
 11	read(1, '(a)', end = 99) cfname
 	nfiles = nfiles + 1
 	write(*, *) 'Processing: ', cfname
@@ -135,8 +139,7 @@ c	>>> topological charge (geometrical definition)
 
 	if((iall .eq. 1) .or. (nuf .eq. inu)) then
 
-	i0 = i0 + 1
-	write(*, *) 'meas. no. ### ', i0
+	write(*, *) 'meas. no. ### ', nfiles
 	write(*, *) 'nu | nuf = ', nu, ' | ', nuf
 	if(iabs(nu) .ne. nuf) write(*, *) 'ALERT: nu <> nuf !!!'
 
@@ -188,9 +191,6 @@ c   >>> write to a .masp file
 	write(3) ((con(ip, ic), ip = 0, NSPACE / 2), ic = 1, 2)  
 c ---------------------------------------------------------------------
 
-c	>>> write entry to log-file
-	write(2, *) cfname(1:lnblnk(cfname)), fmass, nu, nuf, pbp, pbg5
-
 	write(*, *) '---------------------------------------------------'
 
 	end if
@@ -198,12 +198,16 @@ c	>>> write entry to log-file
 	goto 11
 
 99	write(*, *) 'nfiles = ', nfiles
+	write(*, *)
 
 c	>>> close .masp-file
 	close(3)
-c   >>> close log-file
-	close(2)
+
 c	>>> close list-file
 	close(1)
+
+c	>>> end of the main loop over fmass
+	fmass = fmass + fmass_step
+	if(fmass .le. fmass_end) goto 1
 
 	end

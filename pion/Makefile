@@ -1,5 +1,5 @@
 ########################################################################
-# Hip, 17 Jun 08; last modified: 2022-03-24 (x86_64 Ubuntu 20.04 LTS)  #
+# Hip, 17 Jun 08; last modified: 2022-04-10 (x86_64 Ubuntu 20.04 LTS)  #
 ########################################################################
 
 NTIME = 20
@@ -10,21 +10,29 @@ NSPACE = 20
 FC = gfortran
 CC = cc
 OPTIMIZATION = -O
-LIB = /usr/lib/x86_64-linux-gnu/
-LAPACK = $(LIB)liblapack.so $(LIB)libblas.so
+# WSL (Windows Subsystem for Linux) Ubuntu
+ifeq ($(WSL_DISTRO_NAME),Ubuntu)
+	LIB = /usr/lib/x86_64-linux-gnu/
+endif
+# cluster Isabella (SRCE Zagreb)
+ifeq ($(SGE_CLUSTER_NAME),isabella)
+	LIB = /usr/lib64/
+endif
+LAPACK = $(LIB)liblapack.so.3
 ########################################################################
 
 FFLAGS = -c $(OPTIMIZATION) -DNTIME=$(NTIME) -DNSPACE=$(NSPACE)
 CFLAGS = -c -DNTIME=$(NTIME) -DNSPACE=$(NSPACE)
 
-inv: main_inv.o hf.o itopch.o scalp.o readconf.o pbp.o imassp.o\
+dsp: main_dsp.o hf.o itopch.o scalp.o readconf.o pbp.o imassp.o\
      neuberger.o invert.o wdet.o Makefile
-	$(FC) $(OPTIMIZATION) main_inv.o hf.o itopch.o scalp.o\
+	$(FC) $(OPTIMIZATION) main_dsp.o hf.o itopch.o scalp.o\
           readconf.o neuberger.o invert.o pbp.o imassp.o wdet.o\
           $(MYLIB) $(LAPACK) -o dsp_L$(NSPACE)x$(NTIME).x
+	rm *.o
 
-main_inv.o: main_inv.F Makefile
-	$(FC) $(FFLAGS) main_inv.F
+main_dsp.o: main_dsp.F Makefile
+	$(FC) $(FFLAGS) main_dsp.F
 
 invert.o: invert.F Makefile
 	$(FC) $(FFLAGS) invert.F
