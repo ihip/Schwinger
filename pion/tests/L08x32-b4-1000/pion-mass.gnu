@@ -2,7 +2,7 @@ set terminal pdfcairo
 set size ratio 0.75
 set output 'pion-L08x32-b4-1000-chi2-pl4-jk20.pdf'
 
-set title "pion mass / j1 / L20x20 / {/Symbol b}=4 / 1000 meas."
+set title "pion mass / j1 / L8x32 / {/Symbol b}=4 / 1000 meas."
 
 set xlabel 'm'
 set ylabel 'm_{/Symbol p}'
