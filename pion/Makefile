@@ -18,16 +18,22 @@ endif
 ifeq ($(SGE_CLUSTER_NAME),isabella)
 	LIB = /usr/lib64/
 endif
+# cluster at UNAM (Mexico City) - Jaime, plese complete!!!
+#ifeq ($(SGE_CLUSTER_NAME),???)
+#	LIB = /usr/lib64/
+#endif
 LAPACK = $(LIB)liblapack.so.3
+MYLIB = ../cbl-mylib/mylib.a
 ########################################################################
 
 FFLAGS = -c $(OPTIMIZATION) -DNTIME=$(NTIME) -DNSPACE=$(NSPACE)
 CFLAGS = -c -DNTIME=$(NTIME) -DNSPACE=$(NSPACE)
 
 dsp: main_dsp.o hf.o itopch.o scalp.o readconf.o pbp.o imassp.o\
-     neuberger.o invert.o wdet.o Makefile
+     neuberger.o invert.o wdet.o save_old_header.o Makefile
 	$(FC) $(OPTIMIZATION) main_dsp.o hf.o itopch.o scalp.o\
-          readconf.o neuberger.o invert.o pbp.o imassp.o wdet.o\
+          readconf.o neuberger.o invert.o pbp.o imassp.o\
+		  wdet.o save_old_header.o\
           $(MYLIB) $(LAPACK) -o dsp_L$(NSPACE)x$(NTIME).x
 	rm *.o
 
@@ -63,6 +69,9 @@ readconf.o: readconf.F Makefile
 
 wdet.o: wdet.F Makefile
 	$(FC) $(FFLAGS) wdet.F
+
+save_old_header.o: save_old_header.F Makefile
+	$(FC) $(FFLAGS) save_old_header.F
 
 ########################################################################
 

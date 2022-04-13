@@ -7,6 +7,11 @@ c   >>> necessary initializations for 2D U(1)
 	parameter (nferm=ndrc*nsite,ngaug=ndim*nsite)
 	parameter (nall=2*ndrc*ngrp*nsite)
 
+c	>>> needed for old header
+	parameter (mcomp=1)
+	character*64 c_mcomputable(mcomp)
+	character*64 c_source, c_direction, c_mfuture
+
 c   >>> needed for condensates
 	real*8 pbp, pbg5p, uudd, ug5udg5d
 	real*8 op_pbp_e, op_pbg5p_e, op_ubudbd_e, op_ubg5udbg5d_e
@@ -126,7 +131,16 @@ C   	>>> prepare the file name L[nspace]x[ntime]_b[beta]m[fmass].data
 		maspname = c_size//c_beta(2:6)//'m'//c_fmass(2:6)//'.masp'
 		open(3, file = maspname, form = 'unformatted',
      &		status = 'unknown')
-		write(3) NSPACE, NTIME, nmeas, beta, fmass
+c		write(3) NSPACE, NTIME, nmeas, beta, fmass
+		call save_header(3, 0, 'dsp-HOR', NSPACE, NTIME, beta, fmass,
+     &		0.0, 0, 0, nmeas, 0, 0, 0)
+
+C       .mass specific part - saving desc. of mass computables
+		c_source = 'point'
+		c_direction = 'time'
+		write(3) mcomp, c_source, c_direction, c_mfuture
+		write(3) (c_mcomputable(i), i = 1, mcomp)
+
 		write(*, *) 'beta = ', beta
 		write(*, *) '.masp file created: ', maspname
 		write(*, *)
@@ -201,6 +215,7 @@ c ---------------------------------------------------------------------
 	write(*, *)
 
 c	>>> close .masp-file
+	call save_tail(3, 0, 0, 0, 0, 0.0)
 	close(3)
 
 c	>>> close list-file
