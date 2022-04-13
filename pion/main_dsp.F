@@ -1,5 +1,5 @@
 	program compute_inverse_of_PHF
-c   >>> Hip / 17 Jun 08 / last modified: 2022-04-10
+c   >>> Hip / 17 Jun 08 / last modified: 2022-04-13
 
 c   >>> necessary initializations for 2D U(1)
 	parameter (ndrc=2,ngrp=1,ndim=2)
@@ -11,6 +11,9 @@ c	>>> needed for old header
 	parameter (mcomp=1)
 	character*64 c_mcomputable(mcomp)
 	character*64 c_source, c_direction, c_mfuture
+
+c   >>> needed for tail
+	real*4 tcpu
 
 c   >>> needed for condensates
 	real*8 pbp, pbg5p, uudd, ug5udg5d
@@ -64,10 +67,10 @@ C	>>> set tolerance for identification of real eigenvalues
 	rtol = 1.0d-12
 
 	write(*, *)
-	write(*,'(1x,''Compute inverse of PHF / Hip, 2022-04-10'')')
+	write(*,'(1x,''Compute inverse of PHF / Hip, 2022-04-13'')')
 	write(*, *)   '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	write(*, *)
-	write(*, '(1x, ''Lattice:   '', i2, '' x '', i2)') NTIME, NSPACE
+	write(*, '(1x, ''Lattice:   '', i2, '' x '', i2)') NSPACE, NTIME
 	write(*, *)
 
 C   >>> read file with list of gauge configurations
@@ -144,6 +147,9 @@ C       .mass specific part - saving desc. of mass computables
 		write(*, *) 'beta = ', beta
 		write(*, *) '.masp file created: ', maspname
 		write(*, *)
+
+c	    >>> start measuring CPU time
+		call cbl_cputime(0, tcpu)
 	end if
 
 	call wdet(cfname, fmass, rtol, nuf, edetr, sigma)
@@ -215,7 +221,8 @@ c ---------------------------------------------------------------------
 	write(*, *)
 
 c	>>> close .masp-file
-	call save_tail(3, 0, 0, 0, 0, 0.0)
+	call cbl_cputime(1, tcpu)
+	call save_tail(3, 0, 0, 0, 0, tcpu)
 	close(3)
 
 c	>>> close list-file
