@@ -18,10 +18,10 @@ endif
 ifeq ($(SGE_CLUSTER_NAME),isabella)
 	LIB = /usr/lib64/
 endif
-# cluster at UNAM (Mexico City) - Jaime, plese complete!!!
-#ifeq ($(SGE_CLUSTER_NAME),???)
-#	LIB = /usr/lib64/
-#endif
+# cluster at UNAM (Mexico City) - 
+ifeq ($(SITE_NAME),ICN-UNAM)
+	LIB = /software/icn/lapack/3.9/
+endif
 LAPACK = $(LIB)liblapack.so.3
 MYLIB = ../cbl-mylib/mylib.a
 ########################################################################
