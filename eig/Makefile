@@ -1,17 +1,28 @@
 ########################################################################
-# ihip, 24 Nov 07; last modified: 10 Aug 20 (Linux - Ubuntu)           #
+# ihip, 24 Nov 07; last modified: 2022-04-14                           #
 ########################################################################
 
-NTIME = 8
-NSPACE = 64
+NTIME = 64
+NSPACE = 8
 
 ########################################################################
 # Linux version:
 FC = gfortran
 CC = gcc
 OPTIMIZATION = -O
-LIB = /usr/lib/x86_64-linux-gnu/
-LAPACK = $(LIB)lapack/liblapack.so.3 $(LIB)blas/libblas.so.3
+# WSL (Windows Subsystem for Linux) Ubuntu
+ifeq ($(WSL_DISTRO_NAME),Ubuntu)
+	LIB = /usr/lib/x86_64-linux-gnu/
+endif
+# cluster Isabella (SRCE Zagreb)
+ifeq ($(SGE_CLUSTER_NAME),isabella)
+	LIB = /usr/lib64/
+endif
+# cluster at UNAM (Mexico City) - 
+ifeq ($(SITE_NAME),ICN-UNAM)
+	LIB = /software/icn/lapack/3.9/
+endif
+LAPACK = $(LIB)lapack/liblapack.so.3
 ########################################################################
 
 FFLAGS = -c $(OPTIMIZATION) -DNTIME=$(NTIME) -DNSPACE=$(NSPACE)
