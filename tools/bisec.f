@@ -29,7 +29,7 @@ c	    write(*, *) 'neg. corr'
 	  else
             efmass(i) =
      & dlog(bisectm(nt1, nt2, 1.0d0 / r12, 10.0d0, 1.0d-6, 1.0d-9))
-	write(*, *) '### ', efmass(i)
+c	write(*, *) '### ', efmass(i)
 	  end if
 	  end if	    
         end do
@@ -67,7 +67,7 @@ c	    write(*, *) 'neg. corr'
           ff = massfunc(x, nt1, nt2, r12)
 	  i = i + 1
         end do
-	if(i .eq. 200) write(*, *) r12, i
+c	if(i .eq. 200) write(*, *) r12, i
         
         bisectm = x
         return

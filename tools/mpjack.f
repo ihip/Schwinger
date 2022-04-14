@@ -69,7 +69,7 @@ c       >>> loop through impulses and time slices
           do it = 1, ntime - 1
  	    mean_s(it, ip) = mean_t(it, ip) -
      &        2.0d0 * (mean_c(ip)**2 + mean_v(it, ip))
-        write(*, *) 'rrr = ', ip, it, mean_t(it, ip), mean_v(it, ip)
+c        write(*, *) 'rrr = ', ip, it, mean_t(it, ip), mean_v(it, ip)
  	    do j = 1, jkblocks
 	      mean_tp(it, j, ip) = mean_tpt(j, it, ip)
  	      mean_sp(it, j, ip) = mean_tpt(j, it, ip) -
@@ -91,37 +91,37 @@ c       >>> loop through impulses and time slices
 
 	end do
 
-	write(*, *)
-	write(*, *) '#', ' triplet sigma_1 current'
+c	write(*, *)
+c	write(*, *) '#', ' triplet sigma_1 current'
 
 	do ip = 0, np
 
-	write(*, *)
-	do it = 1, ntime / 2 - 1
-	  write(*, *) it, t(it, ip), dsqrt(t_var(it, ip))
-	end do
+c	write(*, *)
+c	do it = 1, ntime / 2 - 1
+c	  write(*, *) it, t(it, ip), dsqrt(t_var(it, ip))
+c	end do
 	call weinfit(mode, nplat, ntime / 2 - 1, t(1, ip),
      &    t_var(1, ip), av, var, k_min)
-	write(*, *) '#', av, dsqrt(var), k_min
-	write(*, *) '&'
+c	write(*, *) '#', av, dsqrt(var), k_min
+c	write(*, *) '&'
 	wm_t(ip) = av
 	wm_t_var(ip) = var
 
 	end do
 
-	write(*, *)
-	write(*, *) '#', ' singlet sigma_1 current'
+c	write(*, *)
+c	write(*, *) '#', ' singlet sigma_1 current'
 
 	do ip = 0, np
 
-	write(*, *)
-	do it = 1, ntime / 2 - 1
-	  write(*, *) it, s(it, ip), dsqrt(s_var(it, ip))
-	end do
+c	write(*, *)
+c	do it = 1, ntime / 2 - 1
+c	  write(*, *) it, s(it, ip), dsqrt(s_var(it, ip))
+c	end do
 	call weinfit(mode, nplat, ntime / 2 - 1, s(1, ip),
      &    s_var(1, ip), av, var, k_min)
-	write(*, *) '#', av, dsqrt(var), k_min
-	write(*, *) '&'
+c	write(*, *) '#', av, dsqrt(var), k_min
+c	write(*, *) '&'
 	wm_s(ip) = av
 	wm_s_var(ip) = var
 
