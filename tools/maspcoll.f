@@ -3,7 +3,7 @@ C     ******************************************************************
 C     ******************************************************************
 C     **                   **                                         **
 C     ** MASPCOLL          **   I. Hip, 2022-04-14                    **
-C     ** v1                **   Last modified: 2022-04-16             **
+C     ** v1                **   Last modified: 2022-04-17             **
 C     **                   **                                         **
 C     ******************************************************************
 C     ...
@@ -14,7 +14,7 @@ C     ******************************************************************
 	real*8 beta, fmass
 
 	write(*, *)
-	write(*, *) 'Masp collector v1 (Hip, 2022-04-16)'
+	write(*, *) 'Masp collector v1 (Hip, 2022-04-17)'
 	write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	write(*, *)
 	write(*, '(1x, ''.masp list file name: '', $)')
@@ -113,7 +113,8 @@ C     ******************************************************************
 	real*8 con(MAX_NMEAS, 0:max_np)
 
 	real*8 sigma_list(MAX_NMEAS)
-	real*8 sigma_b, sigma_var_naiv, sigma_var
+	real*8 det_list(MAX_NMEAS)
+	real*8 av, var
 
 	real*8 t(MAX_NTIME - 2, 0:max_np)
 	real*8 t_var(MAX_NTIME - 2, 0:max_np)
@@ -137,15 +138,16 @@ c	>>> loop over all measurements (configurations)
 	  read(1) nu, nuf, rtol
 	  read(1) sigma, edetr, pbp, pbg5p, uudd, ug5udg5d
 
+	  det = edetr
+	  sigma_list(i) = sigma
+	  det_list(i) = det
+
 	  read(1)  
      &  (((dsp(j, ip, k), j = 1, ntime - 1),
      &  ip = 0, nspace / 2), k = 1, 4)
 	  read(1) ((conn(ip, k), ip = 0, nspace / 2), k = 1, 2) 
 
-	  det = edetr
-
 	  if(nf .eq. 0) then
-		sigma_list(i) = sigma
 		do ip = 0, nspace / 2
 	      do it = 1, ntime
 	    	trip(i, it, ip) = dsp(it, ip, 1)
@@ -156,7 +158,6 @@ c	>>> loop over all measurements (configurations)
 	  else if(nf .eq. 2) then
 		det2 = det**2
 		det2sum = det2sum + det2
-		sigma_list(i) = sigma * det2
 		do ip = 0, nspace / 2
 	      do it = 1, ntime
 	    	trip(i, it, ip) = dsp(it, ip, 1) * det2
@@ -167,7 +168,6 @@ c	>>> loop over all measurements (configurations)
 	  else if(nf .eq. 4) then
 		det4 = det**4
 		det4sum = det4sum + det4
-		sigma_list(i) = sigma * det4
 		do ip = 0, nspace / 2
 	      do it = 1, ntime
 	    	trip(i, it, ip) = dsp(it, ip, 1) * det4
@@ -183,7 +183,6 @@ c	>>> loop over all measurements (configurations)
 	if(nf .eq. 2) then
 	  det2av = det2sum / dble(nmeas)
 	  do i = 1, nmeas
-		sigma_list(i) = sigma_list(i) / det2av
 		do ip = 0, nspace / 2
 	      do it = 1, ntime
 	        trip(i, it, ip) = trip(i, it, ip) / det2av
@@ -195,7 +194,6 @@ c	>>> loop over all measurements (configurations)
 	else if(nf .eq. 4) then
 	  det4av = det4sum / dble(nmeas)
 	  do i = 1, nmeas
-		sigma_list(i) = sigma_list(i) / det4av
 		do ip = 0, nspace / 2
 	      do it = 1, ntime
 	        trip(i, it, ip) = trip(i, it, ip) / det4av
@@ -212,17 +210,94 @@ c	>>> loop over all measurements (configurations)
      &  t, t_var, s, s_var, 
      &  mode, nplat, wm_t, wm_t_var, wm_s, wm_s_var)
 
-	call djackknife(nmeas, jkblocks, sigma_list, sigma, sigma_b,
-     &	sigma_var_naiv, sigma_var)
+	call rw_jack(nmeas, jkblocks, sigma_list, det_list, nf, av, var)
 
 c	>>> Gell-Mann--Oakes--Renner relation
-	gmor = dsqrt(2.0d0 * fmass * sigma) / wm_t(0)
+	gmor = dsqrt(2.0d0 * fmass * av) / wm_t(0)
 
 c	>>> write to output file
 	write(2, '(1x, f6.4, $)') fmass
-	write(2, *) wm_t(0), dsqrt(wm_t_var(0)), sigma,
-     &	dsqrt(sigma_var), gmor
+	write(2, *) wm_t(0), dsqrt(wm_t_var(0)), av, dsqrt(var), gmor
 
 	write(*, *)
 	return
 	end
+
+
+C     ******************************************************************
+      subroutine rw_jack(nconf, jkblocks, a, det, nf, av, var)
+C     ******************************************************************
+C     **                   **                                         **
+C     ** RW_JACK           **   I. Hip, 2022-04-17                    **
+C     **                   **   Last modified: 2022-04-17             **
+C     ******************************************************************
+C     IN integer*4 nmeas - number of configurations
+C     IN integer*4 jkblocks - number of jackknife subsamples
+C     IN real*8 a(nmeas) - value of a for each configuration
+C     IN real*8 det(nmeas) - determinant for each configuration
+C     IN integer*4 nf - number of flavors
+C     OUT real*8 av - average of jkblocks
+C     OUT real*8 var - variance (result of jackknife)
+C     ******************************************************************
+C     jackknife for reweighted variable a
+C     ******************************************************************
+	real*8 a(nmeas), det(nmeas), av, var
+
+	parameter(max_jkblocks=100)
+
+	real*8 weight, sum, wsum 
+	real*8 e(max_jkblocks), sum_e, sum_e2
+	real*8 av2
+
+	if(jkblocks .gt. max_jkblocks) then
+	  jkblocks = max_jkblocks
+	  write(*, *) 'Jackknife WARNING: number of blocks to big, ',
+     &      'set to ', max_jkblocks, '.'
+	end if
+
+	if(mod(nconf, jkblocks) .ne. 0) then
+	  write(*, *) 'mod(nconf, jkblocks) != 0'
+	  write(*, *) 'Jackknife ERROR: not all conf. included'
+	  stop
+	end if
+
+C   >>> prepare jkblocks different ensembles
+	npart = nconf / jkblocks
+
+	do i = 1, jkblocks
+	  sum = 0.0d0
+	  wsum = 0.0d0
+	  do j = 1, nconf
+	    if((j .lt. (i - 1) * npart + 1) .or. (j .gt. i * npart)) then
+		  weight = det(j)**nf
+		  sum = sum + a(j) * weight
+		  wsum = wsum + weight
+		end if
+	  end do
+	  e(i) = sum / wsum
+	end do
+
+	sum_e = 0.0d0
+	sum_e2 = 0.0d0
+	do i = 1, jkblocks
+	  sum_e = sum_e + e(i)
+	  sum_e2 = sum_e2 + e(i)**2
+	end do
+c	>>> biased average ???
+	av = sum_e / dble(jkblocks)
+	av2 = sum_e2 / dble(jkblocks)
+	var = dble(jkblocks - 1) * (av2 - av**2)
+
+c	>>> straightforward reweighted average
+	sum = 0.0d0
+	wsum = 0.0d0
+	do j = 1, nconf
+	  weight = det(j)**nf
+	  sum = sum + a(j) * weight
+	  wsum = wsum + weight
+	end do
+	av = sum / wsum
+
+	return
+	end
+
