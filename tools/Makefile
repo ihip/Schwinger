@@ -76,8 +76,8 @@ masscoll: masscoll.f load.o jackknife.o mjack.o weinfit.o bisec.o
 
 ########################################################################
 
-maspcoll: maspcoll.f load.o jackknife.o mpjack.o weinfit.o bisec.o
-	$(F77) $(FFLAGS) maspcoll.f load.o jackknife.o mpjack.o \
+maspcoll: maspcoll.f load.o djackknife.o mpjack.o weinfit.o bisec.o
+	$(F77) $(FFLAGS) maspcoll.f load.o djackknife.o mpjack.o \
 	  weinfit.o bisec.o -o maspcoll.x
 
 ########################################################################
@@ -138,6 +138,9 @@ retfit: retfit.f fit.o
 
 jackknife.o: jackknife.f
 	$(F77) -c $(FFLAGS) jackknife.f
+
+djackknife.o: djackknife.f
+	$(F77) -c $(FFLAGS) djackknife.f
 
 jackknife_s.o: jackknife_s.f
 	$(F77) -c $(FFLAGS) jackknife_s.f

@@ -3,7 +3,7 @@ C     ******************************************************************
 C     ******************************************************************
 C     **                   **                                         **
 C     ** MASPCOLL          **   I. Hip, 2022-04-14                    **
-C     ** v1                **   Last modified: 2022-04-14             **
+C     ** v1                **   Last modified: 2022-04-16             **
 C     **                   **                                         **
 C     ******************************************************************
 C     ...
@@ -14,7 +14,7 @@ C     ******************************************************************
 	real*8 beta, fmass
 
 	write(*, *)
-	write(*, *) 'Masp collector v1 (Hip, 2022-04-14)'
+	write(*, *) 'Masp collector v1 (Hip, 2022-04-16)'
 	write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	write(*, *)
 	write(*, '(1x, ''.masp list file name: '', $)')
@@ -39,7 +39,7 @@ c	write(*, *)
 	write(*, *) '0 quenched'
 	write(*, *) '2 2-flavours'
 	write(*, *) '4 4-flavours'
-	read(*, *) iq 
+	read(*, *) nf
 	write(*, *)
 
 c   >>> read fit parameters
@@ -65,7 +65,7 @@ c   >>> loop over files in the list
       call load_mheader(1, mcomp)
 
 	  kf = kf + 1
-      call masp_eff_jk(ntime, nspace, nmeas, fmass, iq, mode, nplat,
+      call masp_eff_jk(ntime, nspace, nmeas, fmass, nf, mode, nplat,
      &  jkblocks)
 
 	  call load_tail(1)
@@ -84,17 +84,22 @@ c	>>> close output file
 
 
 C     ******************************************************************
-      subroutine masp_eff_jk(ntime, nspace, nmeas, fmass, iq, mode,
+      subroutine masp_eff_jk(ntime, nspace, nmeas, fmass, nf, mode,
      &   nplat, jkblocks)
 C     ******************************************************************
 C     **                   **                                         **
 C     ** MASP_EFF_JK       **   I. Hip, 18 Aug 98                     **
-C     ** v4                **   Last modified: 2022-04-14             **
+C     ** v4                **   Last modified: 2022-04-16             **
 C     **                   **                                         **
 C     ******************************************************************
-C     IN ntime - lattice size in time dimension
-C     IN nspace - lattice size in space dimension
-C     IN nmeas - number of measurements
+C     IN integer*4 ntime - lattice size in time dimension
+C     IN integer*4 nspace - lattice size in space dimension
+C     IN integer*4 nmeas - number of measurements
+C     IN real*8 fmass - fermion (quark) mass
+C     IN integer*4 nf - number of flavors
+C     IN integer*4 mode - mass fit parameter (1-var, 2-chi^2)
+C     IN integer*4 nplat - mass fit parameter: plateau size
+C     IN integer*4 jkblocks - number of jackknife subsamples
 C     ******************************************************************
 	real*8 fmass
 
@@ -107,6 +112,9 @@ C     ******************************************************************
 	real*8 vac(MAX_NMEAS, MAX_NTIME, 0:max_np)
 	real*8 con(MAX_NMEAS, 0:max_np)
 
+	real*8 sigma_list(MAX_NMEAS)
+	real*8 sigma_b, sigma_var_naiv, sigma_var
+
 	real*8 t(MAX_NTIME - 2, 0:max_np)
 	real*8 t_var(MAX_NTIME - 2, 0:max_np)
 	real*8 s(MAX_NTIME - 2, 0:max_np)
@@ -115,8 +123,8 @@ C     ******************************************************************
 	real*8 wm_s(0:max_np), wm_s_var(0:max_np)
 
 	real*8 rtol, sigma, edetr, pbp, pbg5p, uudd, ug5udg5d
-
-	real*8 det, det2, det2sum, det4, det4sum
+	real*8 det, det2, det2sum, det2av, det4, det4sum, det4av
+	real*8 gmor
 
 	real*4 tcpu
 
@@ -124,86 +132,97 @@ C     ******************************************************************
 	det2sum = 0.0d0
 	det4sum = 0.0d0
 
+c	>>> loop over all measurements (configurations)
 	do i = 1, nmeas
 	  read(1) nu, nuf, rtol
 	  read(1) sigma, edetr, pbp, pbg5p, uudd, ug5udg5d
 
-	  read(1)      
-     &      (((dsp(j, ip, k), j = 1, ntime - 1),
-     &      ip = 0, nspace / 2), k = 1, 4)
+	  read(1)  
+     &  (((dsp(j, ip, k), j = 1, ntime - 1),
+     &  ip = 0, nspace / 2), k = 1, 4)
 	  read(1) ((conn(ip, k), ip = 0, nspace / 2), k = 1, 2) 
 
 	  det = edetr
-	  det2 = det**2
-	  det2sum = det2sum + det2
-	  det4 = det**4
-	  det4sum = det4sum + det4
 
-	  if(iq .eq. 0) then
-	  do ip = 0, nspace / 2
-	    do it = 1, ntime
-	      trip(i, it, ip) = dsp(it, ip, 1)
-	      vac(i, it, ip) = dsp(it, ip, 2)
-	      con(i, ip) = conn(ip, 1)
+	  if(nf .eq. 0) then
+		sigma_list(i) = sigma
+		do ip = 0, nspace / 2
+	      do it = 1, ntime
+	    	trip(i, it, ip) = dsp(it, ip, 1)
+	    	vac(i, it, ip) = dsp(it, ip, 2)
+	    	con(i, ip) = conn(ip, 1)
+	      end do
 	    end do
-	  end do
-	  else if(iq .eq. 2) then
-	  do ip = 0, nspace / 2
-	    do it = 1, ntime
-	      trip(i, it, ip) = dsp(it, ip, 1) * det2
-	      vac(i, it, ip) = dsp(it, ip, 2) * det2
-	      con(i, ip) = conn(ip, 1) * det2
-	    end do
-	  end do
-	  else if(iq .eq. 4) then
-	  do ip = 0, nspace / 2
-	    do it = 1, ntime
-	      trip(i, it, ip) = dsp(it, ip, 1) * det4
-	      vac(i, it, ip) = dsp(it, ip, 2) * det4
-	      con(i, ip) = conn(ip, 1) * det4
-	    end do
-	  end do
+	  else if(nf .eq. 2) then
+		det2 = det**2
+		det2sum = det2sum + det2
+		sigma_list(i) = sigma * det2
+		do ip = 0, nspace / 2
+	      do it = 1, ntime
+	    	trip(i, it, ip) = dsp(it, ip, 1) * det2
+	    	vac(i, it, ip) = dsp(it, ip, 2) * det2
+	    	con(i, ip) = conn(ip, 1) * det2
+		  end do
+		end do
+	  else if(nf .eq. 4) then
+		det4 = det**4
+		det4sum = det4sum + det4
+		sigma_list(i) = sigma * det4
+		do ip = 0, nspace / 2
+	      do it = 1, ntime
+	    	trip(i, it, ip) = dsp(it, ip, 1) * det4
+	    	vac(i, it, ip) = dsp(it, ip, 2) * det4
+	    	con(i, ip) = conn(ip, 1) * det4
+	      end do
+		end do
 	  else
-	    stop 'unallowed iq'
+	    stop 'unallowed nf (number of flavors)'
 	  end if  
 	end do
 
-	if(iq .eq. 2) then
-	  do ip = 0, nspace / 2
-	    do it = 1, ntime
-	      do i = 1, nmeas
-	        trip(i, it, ip) = trip(i, it, ip) / det2sum
-	        vac(i, it, ip) = vac(i, it, ip) / det2sum
-	        con(i, ip) = con(i, ip) / det2sum
+	if(nf .eq. 2) then
+	  det2av = det2sum / dble(nmeas)
+	  do i = 1, nmeas
+		sigma_list(i) = sigma_list(i) / det2av
+		do ip = 0, nspace / 2
+	      do it = 1, ntime
+	        trip(i, it, ip) = trip(i, it, ip) / det2av
+	        vac(i, it, ip) = vac(i, it, ip) / det2av
+	        con(i, ip) = con(i, ip) / det2av
 	      end do
 	    end do
 	  end do
-	else if(iq .eq. 4) then
-	  do ip = 0, nspace / 2
-	    do it = 1, ntime
-	      do i = 1, nmeas
-	        trip(i, it, ip) = trip(i, it, ip) / det4sum
-	        vac(i, it, ip) = vac(i, it, ip) / det4sum
-	        con(i, ip) = con(i, ip) / det4sum
+	else if(nf .eq. 4) then
+	  det4av = det4sum / dble(nmeas)
+	  do i = 1, nmeas
+		sigma_list(i) = sigma_list(i) / det4av
+		do ip = 0, nspace / 2
+	      do it = 1, ntime
+	        trip(i, it, ip) = trip(i, it, ip) / det4av
+	        vac(i, it, ip) = vac(i, it, ip) / det4av
+	        con(i, ip) = con(i, ip) / det4av
 	      end do
 	    end do
 	  end do
 	end if
 
-	write(*, *) '...done.'
-	write(*, *)
-
 	np = nspace / 2
 
 	call mpjack(nmeas, jkblocks, ntime, np, trip, vac, con, 
-     &    t, t_var, s, s_var, 
-     &    mode, nplat, wm_t, wm_t_var, wm_s, wm_s_var)
+     &  t, t_var, s, s_var, 
+     &  mode, nplat, wm_t, wm_t_var, wm_s, wm_s_var)
 
-	write(*, *)
+	call djackknife(nmeas, jkblocks, sigma_list, sigma, sigma_b,
+     &	sigma_var_naiv, sigma_var)
+
+c	>>> Gell-Mann--Oakes--Renner relation
+	gmor = dsqrt(2.0d0 * fmass * sigma) / wm_t(0)
 
 c	>>> write to output file
 	write(2, '(1x, f6.4, $)') fmass
-	write(2, *) wm_t(0), dsqrt(wm_t_var(0))
+	write(2, *) wm_t(0), dsqrt(wm_t_var(0)), sigma,
+     &	dsqrt(sigma_var), gmor
 
+	write(*, *)
 	return
 	end
