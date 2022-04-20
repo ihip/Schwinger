@@ -3,7 +3,7 @@ C     ******************************************************************
 C     ******************************************************************
 C     **                   **                                         **
 C     ** MASPCOLL          **   I. Hip, 2022-04-14                    **
-C     ** v1                **   Last modified: 2022-04-17             **
+C     ** v1                **   Last modified: 2022-04-20             **
 C     **                   **                                         **
 C     ******************************************************************
 C     ...
@@ -14,7 +14,7 @@ C     ******************************************************************
 	real*8 beta, fmass
 
 	write(*, *)
-	write(*, *) 'Masp collector v1 (Hip, 2022-04-17)'
+	write(*, *) 'Masp collector v1 (Hip, 2022-04-20)'
 	write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	write(*, *)
 	write(*, '(1x, ''.masp list file name: '', $)')
@@ -89,7 +89,7 @@ C     ******************************************************************
 C     ******************************************************************
 C     **                   **                                         **
 C     ** MASP_EFF_JK       **   I. Hip, 18 Aug 98                     **
-C     ** v4                **   Last modified: 2022-04-16             **
+C     ** v4                **   Last modified: 2022-04-20             **
 C     **                   **                                         **
 C     ******************************************************************
 C     IN integer*4 ntime - lattice size in time dimension
@@ -113,8 +113,8 @@ C     ******************************************************************
 	real*8 con(MAX_NMEAS, 0:max_np)
 
 	real*8 sigma_list(MAX_NMEAS)
+	real*8 sigma_av, sigma_var
 	real*8 det_list(MAX_NMEAS)
-	real*8 av, var
 
 	real*8 t(MAX_NTIME - 2, 0:max_np)
 	real*8 t_var(MAX_NTIME - 2, 0:max_np)
@@ -125,7 +125,7 @@ C     ******************************************************************
 
 	real*8 rtol, sigma, edetr, pbp, pbg5p, uudd, ug5udg5d
 	real*8 det, det2, det2sum, det2av, det4, det4sum, det4av
-	real*8 gmor
+	real*8 gmor, gmor_var
 
 	real*4 tcpu
 
@@ -210,14 +210,18 @@ c	>>> loop over all measurements (configurations)
      &  t, t_var, s, s_var, 
      &  mode, nplat, wm_t, wm_t_var, wm_s, wm_s_var)
 
-	call rw_jack(nmeas, jkblocks, sigma_list, det_list, nf, av, var)
+	call rw_jack(nmeas, jkblocks, sigma_list, det_list, nf,
+     &  sigma_av, sigma_var)
 
 c	>>> Gell-Mann--Oakes--Renner relation
-	gmor = dsqrt(2.0d0 * fmass * av) / wm_t(0)
+	gmor = dsqrt(2.0d0 * fmass * sigma_av) / wm_t(0)
+	gmor_var = fmass * sigma_var / (2.0d0 * sigma_av * wm_t(0)**2) +
+     &  2.0d0 * fmass * sigma_av * wm_t_var(0) / wm_t(0)**4
 
 c	>>> write to output file
 	write(2, '(1x, f6.4, $)') fmass
-	write(2, *) wm_t(0), dsqrt(wm_t_var(0)), av, dsqrt(var), gmor
+	write(2, *) wm_t(0), dsqrt(wm_t_var(0)),
+     &  sigma_av, dsqrt(sigma_var), gmor, dsqrt(gmor_var)
 
 	write(*, *)
 	return
