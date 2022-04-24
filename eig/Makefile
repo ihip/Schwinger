@@ -22,7 +22,7 @@ endif
 ifeq ($(SITE_NAME),ICN-UNAM)
 	LIB = /software/icn/lapack/3.9/
 endif
-LAPACK = $(LIB)lapack/liblapack.so.3
+LAPACK = $(LIB)liblapack.so.3
 ########################################################################
 
 FFLAGS = -c $(OPTIMIZATION) -DNTIME=$(NTIME) -DNSPACE=$(NSPACE)
