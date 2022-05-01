@@ -3,7 +3,7 @@ C     ******************************************************************
 C     ******************************************************************
 C     **                   **                                         **
 C     ** MASPCOLL          **   I. Hip, 2022-04-14                    **
-C     ** v1                **   Last modified: 2022-04-20             **
+C     ** v1                **   Last modified: 2022-04-30             **
 C     **                   **                                         **
 C     ******************************************************************
 C     ...
@@ -14,7 +14,7 @@ C     ******************************************************************
 	real*8 beta, fmass
 
 	write(*, *)
-	write(*, *) 'Masp collector v1 (Hip, 2022-04-20)'
+	write(*, *) 'Masp collector v2 (Hip, 2022-04-30)'
 	write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	write(*, *)
 	write(*, '(1x, ''.masp list file name: '', $)')
@@ -36,9 +36,7 @@ c	  read(*, *) inu
 c	end if
 c	write(*, *)
 
-	write(*, *) '0 quenched'
-	write(*, *) '2 2-flavours'
-	write(*, *) '4 4-flavours'
+	write(*, '(1x, ''number of flavors: '', $)')
 	read(*, *) nf
 	write(*, *)
 
@@ -124,14 +122,12 @@ C     ******************************************************************
 	real*8 wm_s(0:max_np), wm_s_var(0:max_np)
 
 	real*8 rtol, sigma, edetr, pbp, pbg5p, uudd, ug5udg5d
-	real*8 det, det2, det2sum, det2av, det4, det4sum, det4av
+	real*8 det, det_nf, det_nf_sum, det_nf_av
 	real*8 gmor, gmor_var
 
 	real*4 tcpu
 
-	detsum = 0.0d0
-	det2sum = 0.0d0
-	det4sum = 0.0d0
+	det_nf_sum = 0.0d0
 
 c	>>> loop over all measurements (configurations)
 	do i = 1, nmeas
@@ -155,50 +151,27 @@ c	>>> loop over all measurements (configurations)
 	    	con(i, ip) = conn(ip, 1)
 	      end do
 	    end do
-	  else if(nf .eq. 2) then
-		det2 = det**2
-		det2sum = det2sum + det2
+	  else
+		det_nf = det**nf
+		det_nf_sum = det_nf_sum + det_nf
 		do ip = 0, nspace / 2
 	      do it = 1, ntime
-	    	trip(i, it, ip) = dsp(it, ip, 1) * det2
-	    	vac(i, it, ip) = dsp(it, ip, 2) * det2
-	    	con(i, ip) = conn(ip, 1) * det2
+	    	trip(i, it, ip) = dsp(it, ip, 1) * det_nf
+	    	vac(i, it, ip) = dsp(it, ip, 2) * det_nf
+	    	con(i, ip) = conn(ip, 1) * det_nf
 		  end do
 		end do
-	  else if(nf .eq. 4) then
-		det4 = det**4
-		det4sum = det4sum + det4
-		do ip = 0, nspace / 2
-	      do it = 1, ntime
-	    	trip(i, it, ip) = dsp(it, ip, 1) * det4
-	    	vac(i, it, ip) = dsp(it, ip, 2) * det4
-	    	con(i, ip) = conn(ip, 1) * det4
-	      end do
-		end do
-	  else
-	    stop 'unallowed nf (number of flavors)'
 	  end if  
 	end do
 
-	if(nf .eq. 2) then
-	  det2av = det2sum / dble(nmeas)
+	if(nf .ne. 0) then
+	  det_nf_av = det_nf_sum / dble(nmeas)
 	  do i = 1, nmeas
 		do ip = 0, nspace / 2
 	      do it = 1, ntime
-	        trip(i, it, ip) = trip(i, it, ip) / det2av
-	        vac(i, it, ip) = vac(i, it, ip) / det2av
-	        con(i, ip) = con(i, ip) / det2av
-	      end do
-	    end do
-	  end do
-	else if(nf .eq. 4) then
-	  det4av = det4sum / dble(nmeas)
-	  do i = 1, nmeas
-		do ip = 0, nspace / 2
-	      do it = 1, ntime
-	        trip(i, it, ip) = trip(i, it, ip) / det4av
-	        vac(i, it, ip) = vac(i, it, ip) / det4av
-	        con(i, ip) = con(i, ip) / det4av
+	        trip(i, it, ip) = trip(i, it, ip) / det_nf_av
+	        vac(i, it, ip) = vac(i, it, ip) / det_nf_av
+	        con(i, ip) = con(i, ip) / det_nf_av
 	      end do
 	    end do
 	  end do
