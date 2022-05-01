@@ -3,7 +3,7 @@ C     ******************************************************************
 C     ******************************************************************
 C     **                   **                                         **
 C     ** MASPCOLL          **   I. Hip, 2022-04-14                    **
-C     ** v1                **   Last modified: 2022-04-30             **
+C     ** v2                **   Last modified: 2022-05-01             **
 C     **                   **                                         **
 C     ******************************************************************
 C     ...
@@ -14,7 +14,7 @@ C     ******************************************************************
 	real*8 beta, fmass
 
 	write(*, *)
-	write(*, *) 'Masp collector v2 (Hip, 2022-04-30)'
+	write(*, *) 'Masp collector v2 (Hip, 2022-05-01)'
 	write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	write(*, *)
 	write(*, '(1x, ''.masp list file name: '', $)')
@@ -122,12 +122,10 @@ C     ******************************************************************
 	real*8 wm_s(0:max_np), wm_s_var(0:max_np)
 
 	real*8 rtol, sigma, edetr, pbp, pbg5p, uudd, ug5udg5d
-	real*8 det, det_nf, det_nf_sum, det_nf_av
+	real*8 det, det_max, det_nf, det_nf_sum, det_nf_av
 	real*8 gmor, gmor_var
 
 	real*4 tcpu
-
-	det_nf_sum = 0.0d0
 
 c	>>> loop over all measurements (configurations)
 	do i = 1, nmeas
@@ -138,33 +136,51 @@ c	>>> loop over all measurements (configurations)
 	  sigma_list(i) = sigma
 	  det_list(i) = det
 
+c	  >>> find det_max
+	  if(i .eq. 1) then
+	    det_max = det
+	  else
+	    if(det .gt. det_max) det_max = det
+	  end if
+
 	  read(1)  
      &  (((dsp(j, ip, k), j = 1, ntime - 1),
      &  ip = 0, nspace / 2), k = 1, 4)
 	  read(1) ((conn(ip, k), ip = 0, nspace / 2), k = 1, 2) 
 
-	  if(nf .eq. 0) then
-		do ip = 0, nspace / 2
-	      do it = 1, ntime
-	    	trip(i, it, ip) = dsp(it, ip, 1)
-	    	vac(i, it, ip) = dsp(it, ip, 2)
-	    	con(i, ip) = conn(ip, 1)
-	      end do
+	  do ip = 0, nspace / 2
+	    do it = 1, ntime
+	      trip(i, it, ip) = dsp(it, ip, 1)
+	      vac(i, it, ip) = dsp(it, ip, 2)
+	      con(i, ip) = conn(ip, 1)
 	    end do
-	  else
-		det_nf = det**nf
+	  end do
+
+	end do
+
+c	>>> for number of flavors != 0 reweighting is necessary
+	if(nf .ne. 0) then
+
+c	  >>> normalize determinant (det_max -> 1)
+      do i = 1, nmeas
+	    det_list(i) = det_list(i) / det_max
+c		write(*, *) i, det_list(i)
+	  end do
+
+c	  >>> reweighting
+	  det_nf_sum = 0.0d0
+      do i = 1, nmeas
+	  	det_nf = det_list(i)**nf
 		det_nf_sum = det_nf_sum + det_nf
 		do ip = 0, nspace / 2
 	      do it = 1, ntime
-	    	trip(i, it, ip) = dsp(it, ip, 1) * det_nf
-	    	vac(i, it, ip) = dsp(it, ip, 2) * det_nf
-	    	con(i, ip) = conn(ip, 1) * det_nf
+	    	trip(i, it, ip) = trip(i, it, ip) * det_nf
+	    	vac(i, it, ip) = vac(i, it, ip) * det_nf
+	    	con(i, ip) = con(i, ip) * det_nf
 		  end do
 		end do
-	  end if  
-	end do
+	  end do  
 
-	if(nf .ne. 0) then
 	  det_nf_av = det_nf_sum / dble(nmeas)
 	  do i = 1, nmeas
 		do ip = 0, nspace / 2
