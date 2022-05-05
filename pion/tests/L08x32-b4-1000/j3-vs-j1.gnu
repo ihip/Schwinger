@@ -9,7 +9,7 @@ set ylabel 'm_{/Symbol p}'
 
 set key right bottom
 
-plot [0:0.16][0:0.51] 2.16333333 * (x**2 / 2.0)**(1.0/3.0) title "Hosotani", \
+plot [0:0.31][0:0.91] 2.16333333 * (x**2 / 2.0)**(1.0/3.0) title "Hosotani", \
   "pion-L08x32-b4-1000-j1-chi2-pl4-jk20-2f-WD.col" w yerr pt 7 lc "blue" ps 0.4 lw 0.3 \
     title "dynamical Wilson (j1, N_f=2)", \
   "pion-L08x32-b4-1000-j3-chi2-pl4-jk20-2f-WD.col" w yerr pt 6 lc "blue" ps 0.4 lw 0.3 \
