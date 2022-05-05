@@ -3,7 +3,7 @@ C     ******************************************************************
 C     ******************************************************************
 C     **                   **                                         **
 C     ** MASPCOLL          **   I. Hip, 2022-04-14                    **
-C     ** v3                **   Last modified: 2022-05-04             **
+C     ** v3                **   Last modified: 2022-05-05             **
 C     **                   **                                         **
 C     ******************************************************************
 C     ...
@@ -14,7 +14,7 @@ C     ******************************************************************
 	real*8 beta, fmass
 
 	write(*, *)
-	write(*, *) 'Masp collector v3 (Hip, 2022-05-04)'
+	write(*, *) 'Masp collector v3 (Hip, 2022-05-05)'
 	write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	write(*, *)
 	write(*, '(1x, ''.masp list file name: '', $)')
@@ -285,19 +285,19 @@ C     ******************************************************************
 C     ******************************************************************
 C     **                   **                                         **
 C     ** RW_JACK           **   I. Hip, 2022-04-17                    **
-C     **                   **   Last modified: 2022-04-17             **
+C     **                   **   Last modified: 2022-05-05             **
 C     ******************************************************************
-C     IN integer*4 nmeas - number of configurations
+C     IN integer*4 nconf - number of configurations
 C     IN integer*4 jkblocks - number of jackknife subsamples
-C     IN real*8 a(nmeas) - value of a for each configuration
-C     IN real*8 det(nmeas) - determinant for each configuration
+C     IN real*8 a(nconf) - value of a for each configuration
+C     IN real*8 det(nconf) - determinant for each configuration
 C     IN integer*4 nf - number of flavors
 C     OUT real*8 av - average of jkblocks
 C     OUT real*8 var - variance (result of jackknife)
 C     ******************************************************************
 C     jackknife for reweighted variable a
 C     ******************************************************************
-	real*8 a(nmeas), det(nmeas), av, var
+	real*8 a(nconf), det(nconf), av, var
 
 	parameter(max_jkblocks=100)
 
