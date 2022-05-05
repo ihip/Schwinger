@@ -3,7 +3,7 @@ C     ******************************************************************
 C     ******************************************************************
 C     **                   **                                         **
 C     ** MASPCOLL          **   I. Hip, 2022-04-14                    **
-C     ** v2                **   Last modified: 2022-05-01             **
+C     ** v3                **   Last modified: 2022-05-04             **
 C     **                   **                                         **
 C     ******************************************************************
 C     ...
@@ -14,7 +14,7 @@ C     ******************************************************************
 	real*8 beta, fmass
 
 	write(*, *)
-	write(*, *) 'Masp collector v2 (Hip, 2022-05-01)'
+	write(*, *) 'Masp collector v3 (Hip, 2022-05-04)'
 	write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	write(*, *)
 	write(*, '(1x, ''.masp list file name: '', $)')
@@ -25,7 +25,10 @@ C     ******************************************************************
 	write(*, *)
 
 	open(3, file = masplistname, form = 'formatted', status = 'old')
-	open(2, file = outname, form = 'formatted', status = 'unknown')
+	open(14, file = 'j1.tmp', form = 'formatted', status = 'unknown')
+	write(14, *) '# triplet j1'
+	open(15, file = 'j3.tmp', form = 'formatted', status = 'unknown')
+	write(15, *) '# triplet j3'
 
 c	>>> not yet implemented
 c	write(*, '(1x, ''Top. charge (0-selected, 1-all): '', $)')
@@ -72,9 +75,20 @@ c   >>> loop over files in the list
 
 99      close(3)
 
-c	>>> close output file
-	write(2, *)
-	close(2)
+c	>>> close output file j1.tmp
+	write(14, *)
+	write(14, *)
+	close(14)
+
+c	>>> close output file j3.tmp
+	write(15, *)
+	write(15, *)
+	close(15)
+
+c	>>> create final output file
+	call system('cat j1.tmp j3.tmp > '//outname)
+	call system('rm j1.tmp')
+	call system('rm j3.tmp')
 
 	write(*, *) '...done. -> results are written to file: ', outname
 	write(*, *)
@@ -87,7 +101,7 @@ C     ******************************************************************
 C     ******************************************************************
 C     **                   **                                         **
 C     ** MASP_EFF_JK       **   I. Hip, 18 Aug 98                     **
-C     ** v4                **   Last modified: 2022-04-20             **
+C     ** v4                **   Last modified: 2022-05-04             **
 C     **                   **                                         **
 C     ******************************************************************
 C     IN integer*4 ntime - lattice size in time dimension
@@ -106,14 +120,21 @@ C     ******************************************************************
 	real*8 dsp(MAX_NTIME, 0:max_np, 4)
 	real*8 conn(0:max_np, 2)
 
+c	>>> j1 (sigma1) current
 	real*8 trip(MAX_NMEAS, MAX_NTIME, 0:max_np)
 	real*8 vac(MAX_NMEAS, MAX_NTIME, 0:max_np)
 	real*8 con(MAX_NMEAS, 0:max_np)
+
+c	>>> j3 (sigma3) current
+	real*8 trip3(MAX_NMEAS, MAX_NTIME, 0:max_np)
+	real*8 vac3(MAX_NMEAS, MAX_NTIME, 0:max_np)
+	real*8 con3(MAX_NMEAS, 0:max_np)
 
 	real*8 sigma_list(MAX_NMEAS)
 	real*8 sigma_av, sigma_var
 	real*8 det_list(MAX_NMEAS)
 
+c	>>> j1 (sigma1) current
 	real*8 t(MAX_NTIME - 2, 0:max_np)
 	real*8 t_var(MAX_NTIME - 2, 0:max_np)
 	real*8 s(MAX_NTIME - 2, 0:max_np)
@@ -121,9 +142,17 @@ C     ******************************************************************
 	real*8 wm_t(0:max_np), wm_t_var(0:max_np)
 	real*8 wm_s(0:max_np), wm_s_var(0:max_np)
 
+c	>>> j3 (sigma3) current
+	real*8 t3(MAX_NTIME - 2, 0:max_np)
+	real*8 t3_var(MAX_NTIME - 2, 0:max_np)
+	real*8 s3(MAX_NTIME - 2, 0:max_np)
+	real*8 s3_var(MAX_NTIME - 2, 0:max_np)
+	real*8 wm_t3(0:max_np), wm_t3_var(0:max_np)
+	real*8 wm_s3(0:max_np), wm_s3_var(0:max_np)
+
 	real*8 rtol, sigma, edetr, pbp, pbg5p, uudd, ug5udg5d
 	real*8 det, det_max, det_nf, det_nf_sum, det_nf_av
-	real*8 gmor, gmor_var
+	real*8 gmor, gmor_var, gmor3, gmor3_var
 
 	real*4 tcpu
 
@@ -150,9 +179,15 @@ c	  >>> find det_max
 
 	  do ip = 0, nspace / 2
 	    do it = 1, ntime
+c		  >>> j1 (sigma1) current
 	      trip(i, it, ip) = dsp(it, ip, 1)
 	      vac(i, it, ip) = dsp(it, ip, 2)
 	      con(i, ip) = conn(ip, 1)
+
+c		  >>> j3 (sigma3) current
+	      trip3(i, it, ip) = dsp(it, ip, 3)
+	      vac3(i, it, ip) = dsp(it, ip, 4)
+	      con3(i, ip) = conn(ip, 2)
 	    end do
 	  end do
 
@@ -174,9 +209,15 @@ c	  >>> reweighting
 		det_nf_sum = det_nf_sum + det_nf
 		do ip = 0, nspace / 2
 	      do it = 1, ntime
+c			>>> j1 (sigma1) current
 	    	trip(i, it, ip) = trip(i, it, ip) * det_nf
 	    	vac(i, it, ip) = vac(i, it, ip) * det_nf
 	    	con(i, ip) = con(i, ip) * det_nf
+
+c			>>> j3 (sigma3) current
+	    	trip3(i, it, ip) = trip3(i, it, ip) * det_nf
+	    	vac3(i, it, ip) = vac3(i, it, ip) * det_nf
+	    	con3(i, ip) = con3(i, ip) * det_nf
 		  end do
 		end do
 	  end do  
@@ -185,9 +226,15 @@ c	  >>> reweighting
 	  do i = 1, nmeas
 		do ip = 0, nspace / 2
 	      do it = 1, ntime
+c			>>> j1 (sigma1) current
 	        trip(i, it, ip) = trip(i, it, ip) / det_nf_av
 	        vac(i, it, ip) = vac(i, it, ip) / det_nf_av
 	        con(i, ip) = con(i, ip) / det_nf_av
+
+c			>>> j3 (sigma3) current
+	        trip3(i, it, ip) = trip3(i, it, ip) / det_nf_av
+	        vac3(i, it, ip) = vac3(i, it, ip) / det_nf_av
+	        con3(i, ip) = con3(i, ip) / det_nf_av
 	      end do
 	    end do
 	  end do
@@ -195,22 +242,38 @@ c	  >>> reweighting
 
 	np = nspace / 2
 
+c	>>> j1 (sigma1) current
 	call mpjack(nmeas, jkblocks, ntime, np, trip, vac, con, 
      &  t, t_var, s, s_var, 
      &  mode, nplat, wm_t, wm_t_var, wm_s, wm_s_var)
 
+c	>>> j3 (sigma3) current
+	call mpjack(nmeas, jkblocks, ntime, np, trip3, vac3, con3,
+     &  t3, t3_var, s3, s3_var, 
+     &  mode, nplat, wm_t3, wm_t3_var, wm_s3, wm_s3_var)
+
 	call rw_jack(nmeas, jkblocks, sigma_list, det_list, nf,
      &  sigma_av, sigma_var)
 
-c	>>> Gell-Mann--Oakes--Renner relation
+c	>>> Gell-Mann--Oakes--Renner relation (j1 current)
 	gmor = dsqrt(2.0d0 * fmass * sigma_av) / wm_t(0)
 	gmor_var = fmass * sigma_var / (2.0d0 * sigma_av * wm_t(0)**2) +
      &  2.0d0 * fmass * sigma_av * wm_t_var(0) / wm_t(0)**4
 
-c	>>> write to output file
-	write(2, '(1x, f6.4, $)') fmass
-	write(2, *) wm_t(0), dsqrt(wm_t_var(0)),
+c	>>> Gell-Mann--Oakes--Renner relation (j3 current)
+	gmor3 = dsqrt(2.0d0 * fmass * sigma_av) / wm_t3(0)
+	gmor3_var = fmass * sigma_var / (2.0d0 * sigma_av * wm_t3(0)**2) +
+     &  2.0d0 * fmass * sigma_av * wm_t3_var(0) / wm_t3(0)**4
+
+c	>>> write to output file j1.tmp
+	write(14, '(1x, f6.4, $)') fmass
+	write(14, *) wm_t(0), dsqrt(wm_t_var(0)),
      &  sigma_av, dsqrt(sigma_var), gmor, dsqrt(gmor_var)
+
+c	>>> write to output file j3.tmp
+	write(15, '(1x, f6.4, $)') fmass
+	write(15, *) wm_t3(0), dsqrt(wm_t3_var(0)),
+     &  sigma_av, dsqrt(sigma_var), gmor3, dsqrt(gmor3_var)
 
 	write(*, *)
 	return
