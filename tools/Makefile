@@ -79,6 +79,7 @@ masscoll: masscoll.f load.o jackknife.o mjack.o weinfit.o bisec.o
 maspcoll: maspcoll.f load.o djackknife.o mpjack.o weinfit.o bisec.o
 	$(F77) $(FFLAGS) maspcoll.f load.o djackknife.o mpjack.o \
 	  weinfit.o bisec.o -o maspcoll.x
+	make clean
 
 ########################################################################
 
@@ -87,6 +88,7 @@ checksigma: checksigma.f load.o djackknife.o mpjack.o weinfit.o bisec.o
 	  weinfit.o bisec.o -o checksigma.x
 	  
 ########################################################################
+
 nkcoll: nkcoll.f icjack.o load.o jackknife.o
 	$(F77) $(FFLAGS) nkcoll.f icjack.o load.o jackknife.o -o nkcoll.x
 

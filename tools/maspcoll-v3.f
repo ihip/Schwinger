@@ -3,10 +3,10 @@ C     ******************************************************************
 C     ******************************************************************
 C     **                   **                                         **
 C     ** MASPCOLL          **   I. Hip, 2022-04-14                    **
-C     ** v4                **   Last modified: 2022-06-22             **
+C     ** v3                **   Last modified: 2022-05-05             **
 C     **                   **                                         **
 C     ******************************************************************
-C     >>> new in v4: jackknife error for GMOR
+C     ...
 C     ******************************************************************
 
 	character*64 masplistname, outname, masp_file_name
@@ -14,7 +14,7 @@ C     ******************************************************************
 	real*8 beta, fmass
 
 	write(*, *)
-	write(*, *) 'Masp collector v4 (Hip, 2022-06-22)'
+	write(*, *) 'Masp collector v3 (Hip, 2022-05-05)'
 	write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	write(*, *)
 	write(*, '(1x, ''.masp list file name: '', $)')
@@ -131,7 +131,7 @@ c	>>> j3 (sigma3) current
 	real*8 con3(MAX_NMEAS, 0:max_np)
 
 	real*8 sigma_list(MAX_NMEAS)
-	real*8 sigma_av, sigma_var, sigma_av_bias, sigma_var_naiv
+	real*8 sigma_av, sigma_var
 	real*8 det_list(MAX_NMEAS)
 
 c	>>> j1 (sigma1) current
@@ -220,8 +220,6 @@ c			>>> j3 (sigma3) current
 	    	con3(i, ip) = con3(i, ip) * det_nf
 		  end do
 		end do
-c		>>> Sigma (chiral condensate)
-		sigma_list(i) = sigma_list(i) * det_nf
 	  end do  
 
 	  det_nf_av = det_nf_sum / dble(nmeas)
@@ -239,8 +237,6 @@ c			>>> j3 (sigma3) current
 	        con3(i, ip) = con3(i, ip) / det_nf_av
 	      end do
 	    end do
-c		>>> Sigma (chiral condensate)
-		sigma_list(i) = sigma_list(i) / det_nf_av
 	  end do
 	end if
 
@@ -256,9 +252,8 @@ c	>>> j3 (sigma3) current
      &  t3, t3_var, s3, s3_var, 
      &  mode, nplat, wm_t3, wm_t3_var, wm_s3, wm_s3_var)
 
-c	>>> Sigma (chiral condensate)
-	call djackknife(nmeas, jkblocks, sigma_list, sigma_av,
-     &  sigma_av_bias, sigma_var_naiv, sigma_var)
+	call rw_jack(nmeas, jkblocks, sigma_list, det_list, nf,
+     &  sigma_av, sigma_var)
 
 c	>>> Gell-Mann--Oakes--Renner relation (j1 current)
 	gmor = dsqrt(2.0d0 * fmass * sigma_av) / wm_t(0)
