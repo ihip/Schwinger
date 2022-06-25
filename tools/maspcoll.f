@@ -131,7 +131,7 @@ c	>>> j3 (sigma3) current
 	real*8 con3(MAX_NMEAS, 0:max_np)
 
 	real*8 sigma_list(MAX_NMEAS)
-	real*8 sigma_av, sigma_var, sigma_av_bias, sigma_var_naiv
+	real*8 sigma_av, sigma_var
 	real*8 det_list(MAX_NMEAS)
 
 c	>>> j1 (sigma1) current
@@ -196,17 +196,18 @@ c		  >>> j3 (sigma3) current
 c	>>> for number of flavors != 0 reweighting is necessary
 	if(nf .ne. 0) then
 
-c	  >>> normalize determinant (det_max -> 1)
-      do i = 1, nmeas
-	    det_list(i) = det_list(i) / det_max
-c		write(*, *) i, det_list(i)
-	  end do
-
-c	  >>> reweighting
+c	  >>> normalize determinant (det_max -> 1) and compute average
 	  det_nf_sum = 0.0d0
-      do i = 1, nmeas
+	  do i = 1, nmeas
+	    det_list(i) = det_list(i) / det_max
 	  	det_nf = det_list(i)**nf
 		det_nf_sum = det_nf_sum + det_nf
+	  end do
+	  det_nf_av = det_nf_sum / dble(nmeas)
+
+c	  >>> reweighting
+      do i = 1, nmeas
+	  	det_nf = det_list(i)**nf / det_nf_av
 		do ip = 0, nspace / 2
 	      do it = 1, ntime
 c			>>> j1 (sigma1) current
@@ -220,28 +221,8 @@ c			>>> j3 (sigma3) current
 	    	con3(i, ip) = con3(i, ip) * det_nf
 		  end do
 		end do
-c		>>> Sigma (chiral condensate)
-		sigma_list(i) = sigma_list(i) * det_nf
 	  end do  
 
-	  det_nf_av = det_nf_sum / dble(nmeas)
-	  do i = 1, nmeas
-		do ip = 0, nspace / 2
-	      do it = 1, ntime
-c			>>> j1 (sigma1) current
-	        trip(i, it, ip) = trip(i, it, ip) / det_nf_av
-	        vac(i, it, ip) = vac(i, it, ip) / det_nf_av
-	        con(i, ip) = con(i, ip) / det_nf_av
-
-c			>>> j3 (sigma3) current
-	        trip3(i, it, ip) = trip3(i, it, ip) / det_nf_av
-	        vac3(i, it, ip) = vac3(i, it, ip) / det_nf_av
-	        con3(i, ip) = con3(i, ip) / det_nf_av
-	      end do
-	    end do
-c		>>> Sigma (chiral condensate)
-		sigma_list(i) = sigma_list(i) / det_nf_av
-	  end do
 	end if
 
 	np = nspace / 2
@@ -257,8 +238,8 @@ c	>>> j3 (sigma3) current
      &  mode, nplat, wm_t3, wm_t3_var, wm_s3, wm_s3_var)
 
 c	>>> Sigma (chiral condensate)
-	call djackknife(nmeas, jkblocks, sigma_list, sigma_av,
-     &  sigma_av_bias, sigma_var_naiv, sigma_var)
+	call rw_jack(nmeas, jkblocks, sigma_list, det_list, nf,
+     &  sigma_av, sigma_var)
 
 c	>>> Gell-Mann--Oakes--Renner relation (j1 current)
 	gmor = dsqrt(2.0d0 * fmass * sigma_av) / wm_t(0)
