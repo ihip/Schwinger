@@ -3,10 +3,13 @@ C     ******************************************************************
 C     ******************************************************************
 C     **                   **                                         **
 C     ** MASPCOLL          **   I. Hip, 2022-04-14                    **
-C     ** v4                **   Last modified: 2022-06-22             **
+C     ** v4                **   Last modified: 2022-06-29             **
 C     **                   **                                         **
 C     ******************************************************************
-C     >>> new in v4: jackknife error for GMOR
+C     >>> new in v4:
+C	        - analyze subset of configurations
+C			- "proper" jackknife for mass error bars
+C			- jackknife error for GMOR
 C     ******************************************************************
 
 	character*64 masplistname, outname, masp_file_name
@@ -14,7 +17,7 @@ C     ******************************************************************
 	real*8 beta, fmass
 
 	write(*, *)
-	write(*, *) 'Masp collector v4 (Hip, 2022-06-22)'
+	write(*, *) 'Masp collector v4 (Hip, 2022-06-29)'
 	write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	write(*, *)
 	write(*, '(1x, ''.masp list file name: '', $)')
@@ -23,12 +26,6 @@ C     ******************************************************************
 	write(*, '(1x, ''output file name (e.g. masp.col): '', $)')
 	read(*, '(a)') outname
 	write(*, *)
-
-	open(3, file = masplistname, form = 'formatted', status = 'old')
-	open(14, file = 'j1.tmp', form = 'formatted', status = 'unknown')
-	write(14, *) '# triplet j1'
-	open(15, file = 'j3.tmp', form = 'formatted', status = 'unknown')
-	write(15, *) '# triplet j3'
 
 c	>>> not yet implemented
 c	write(*, '(1x, ''Top. charge (0-selected, 1-all): '', $)')
@@ -54,20 +51,47 @@ c   >>> read fit parameters
 	read(*, *) jkblocks
 	write(*, *)
 
+c	>>> read start configuration and the number of measurements
+	write(*, '(1x, ''start with conf. No. = '', $)')
+	read(*, *) kcfstart
+
+	write(*, '(1x, ''nmeas = '', $)')
+	read(*, *) nmeas
+	write(*, *)
+
+c	>>> create temporary output files
+	open(3, file = masplistname, form = 'formatted', status = 'old')
+	open(14, file = 'j1.tmp', form = 'formatted', status = 'unknown')
+	write(14, '(''# triplet j1 / nf'', i2, $)') nf
+	write(14,
+     & '('' / mode'', i2, '' / nplat'', i3, '' / jkb'', i4, $)')
+     & mode, nplat, jkblocks
+	write(14,
+     & '('' / start'', i6, '' / nmeas'', i6)')
+     & kcfstart, nmeas
+	open(15, file = 'j3.tmp', form = 'formatted', status = 'unknown')
+	write(15, '(''# triplet j3 / nf'', i2, $)') nf
+	write(15,
+     & '('' / mode'', i2, '' / nplat'', i3, '' / jkb'', i4, $)')
+     & mode, nplat, jkblocks
+	write(15,
+     & '('' / start'', i6, '' / nmeas'', i6)')
+     & kcfstart, nmeas
+
 c   >>> loop over files in the list
-	kf = 0
+	ifile = 0
 10    read(3, '(a)', end = 99) masp_file_name
 
 	  open(1, file = masp_file_name, form = 'unformatted',
      &    status = 'old')
 
-	  call load_header(1, nspace, ntime, nmeas, beta, fmass)
+	  call load_header(1, nspace, ntime, nconf, beta, fmass)
 
       call load_mheader(1, mcomp)
 
-	  kf = kf + 1
-      call masp_eff_jk(ntime, nspace, nmeas, fmass, nf, mode, nplat,
-     &  jkblocks)
+	  ifile = ifile + 1
+      call masp_eff_jk(ntime, nspace, nconf, kcfstart, nmeas, fmass,	   
+     &  nf, mode, nplat, jkblocks)
 
 	  call load_tail(1)
 	  close(1)
@@ -96,16 +120,18 @@ c	>>> create final output file
 
 
 C     ******************************************************************
-      subroutine masp_eff_jk(ntime, nspace, nmeas, fmass, nf, mode,
-     &   nplat, jkblocks)
+      subroutine masp_eff_jk(ntime, nspace, nconf, kcfstart, nmeas,
+     &   fmass, nf, mode, nplat, jkblocks)
 C     ******************************************************************
 C     **                   **                                         **
 C     ** MASP_EFF_JK       **   I. Hip, 18 Aug 98                     **
-C     ** v4                **   Last modified: 2022-05-04             **
+C     ** v4                **   Last modified: 2022-06-25             **
 C     **                   **                                         **
 C     ******************************************************************
 C     IN integer*4 ntime - lattice size in time dimension
 C     IN integer*4 nspace - lattice size in space dimension
+C     IN integer*4 nconf - number of configurations in .masp file
+C     IN integer*4 kcfstart - start with this configuration
 C     IN integer*4 nmeas - number of measurements
 C     IN real*8 fmass - fermion (quark) mass
 C     IN integer*4 nf - number of flavors
@@ -156,41 +182,45 @@ c	>>> j3 (sigma3) current
 
 	real*4 tcpu
 
-c	>>> loop over all measurements (configurations)
-	do i = 1, nmeas
+c	>>> loop over all configurations in .masp file
+	i = 0
+	do icf = 1, nconf
+c	  >>> read all data for one configuration
 	  read(1) nu, nuf, rtol
 	  read(1) sigma, edetr, pbp, pbg5p, uudd, ug5udg5d
-
-	  det = edetr
-	  sigma_list(i) = sigma
-	  det_list(i) = det
-
-c	  >>> find det_max
-	  if(i .eq. 1) then
-	    det_max = det
-	  else
-	    if(det .gt. det_max) det_max = det
-	  end if
-
 	  read(1)  
      &  (((dsp(j, ip, k), j = 1, ntime - 1),
      &  ip = 0, nspace / 2), k = 1, 4)
 	  read(1) ((conn(ip, k), ip = 0, nspace / 2), k = 1, 2) 
 
-	  do ip = 0, nspace / 2
-	    do it = 1, ntime
-c		  >>> j1 (sigma1) current
-	      trip(i, it, ip) = dsp(it, ip, 1)
-	      vac(i, it, ip) = dsp(it, ip, 2)
-	      con(i, ip) = conn(ip, 1)
+c	  >>> start with kcfstart and make nmeas measurements
+	  if((icf .ge. kcfstart) .and. (i .lt. nmeas)) then
+		i = i + 1
+	    det = edetr
+	    sigma_list(i) = sigma
+	    det_list(i) = det
 
-c		  >>> j3 (sigma3) current
-	      trip3(i, it, ip) = dsp(it, ip, 3)
-	      vac3(i, it, ip) = dsp(it, ip, 4)
-	      con3(i, ip) = conn(ip, 2)
+c	    >>> find det_max
+	    if(i .eq. 1) then
+	      det_max = det
+	    else
+	      if(det .gt. det_max) det_max = det
+	    end if
+
+	    do ip = 0, nspace / 2
+	      do it = 1, ntime
+c		    >>> j1 (sigma1) current
+	        trip(i, it, ip) = dsp(it, ip, 1)
+	        vac(i, it, ip) = dsp(it, ip, 2)
+	        con(i, ip) = conn(ip, 1)
+
+c		    >>> j3 (sigma3) current
+	        trip3(i, it, ip) = dsp(it, ip, 3)
+	        vac3(i, it, ip) = dsp(it, ip, 4)
+	        con3(i, ip) = conn(ip, 2)
+	      end do
 	    end do
-	  end do
-
+	  end if
 	end do
 
 c	>>> for number of flavors != 0 reweighting is necessary
