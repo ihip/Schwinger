@@ -1,9 +1,9 @@
 ########################################################################
-# ihip, 24 Nov 07; last modified: 2022-11-18                           #
+# ihip, 24 Nov 07; last modified: 2023-01-07                           #
 ########################################################################
 
-NTIME = 64
-NSPACE = 8
+NTIME =  20
+NSPACE = 20
 
 ########################################################################
 # Linux version:
@@ -42,9 +42,9 @@ cfeig: main_cfeig.o hf.o mk_index.o itopch.o lapackeig.o scalp.o\
           $(MYLIB) $(LAPACK) -o cfeig$(NSPACE)x$(NTIME).x
 
 # eigenvalues of central-branch Wilson fermions (cbWf)
-cbWf_cfeig: main_cbWf_cfeig.o hf.o mk_index.o itopch.o lapackeig.o scalp.o\
+cbWf_cfeig: main_cbWf_cfeig.o mvec_cbWf.o mk_index.o itopch.o lapackeig.o scalp.o\
 	 normalize.o save_eig.o Makefile
-	$(FC) $(OPTIMIZATION) main_cbWf_cfeig.o hf.o mk_index.o itopch.o\
+	$(FC) $(OPTIMIZATION) main_cbWf_cfeig.o mvec_cbWf.o mk_index.o itopch.o\
            scalp.o normalize.o lapackeig.o save_eig.o\
           $(MYLIB) $(LAPACK) -o cbWf_cfeig$(NSPACE)x$(NTIME).x
 		  
@@ -62,6 +62,9 @@ main_cfeig.o: main_cfeig.F Makefile
 
 main_cbWf_cfeig.o: main_cbWf_cfeig.F Makefile
 	$(FC) $(FFLAGS) main_cbWf_cfeig.F
+
+mvec_cbWf.o: mvec_cbWf.F Makefile
+	$(FC) $(FFLAGS) mvec_cbWf.F
 
 hf.o: hf.F Makefile
 	$(FC) $(FFLAGS) hf.F

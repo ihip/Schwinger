@@ -1,6 +1,6 @@
       program compute_eigenvalues
-
-c	  ihip - 24 Nov 07 - last modified: 25 Aug 21
+c		of central-branch Wilson fermions (cbWf)
+c	  ihip - 24 Nov 07 - last modified: 07 Jan 23
 
 c	  >>> necessary initializations for 2D U(1)
 	  parameter (ndrc=2,ngrp=1,ndim=2)
@@ -23,8 +23,8 @@ c     >>> gauge file name
 c     >>> 'dense' working array
 	  complex*16 a(nferm, nferm)
 
-c	  >>> shift of the Dirac operator before overlap projection (1.0)
-	  real*8 mu_shift
+c     >>> auxiliary vector
+	  complex*16 s(nferm)
 
 c     >>> EVs
 	  complex*16 eig(nferm)
@@ -39,14 +39,13 @@ C     ------------------------------------------------------------------
 
 C     >>> initialize index arrays
 	  call mk_index()
-	  call make_ihf()
 
 C	  >>> set tolerance for real eigenvalues
 	  rtol = 1.0d-12
 
 	  write(*, *)
-	  write(*,'(1x,''cfeig - compute eigenvalues (Hip, 25 Aug 21)'')')
-	  write(*, *)   '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+	  write(*,'(1x,''cbWf_cfeig - eigenvalues (Hip, 07 Jan 23)'')')
+	  write(*, *)   '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	  write(*, *)
 	  write(*, '(1x, ''Lattice:   '', i3, '' x '', i3)') NSPACE, NTIME
 	  write(*, *)
@@ -86,25 +85,18 @@ c	  >>> compute topological charge
 	  write(*, *)
 	  write(*, *)
 
-c	  >>> KERNEL operator
-	  write(*, *) '### KERNEL operator ###'
+c	  >>> lattice Dirac operator
+	  write(*, *) '### cbWf operator ###'
 
-c	  >>> fill-in the hypercube fermions
-	  call init_hf('GWRoptimal_ws   ')
-	  call fill_dhf(a)
-
-c	  >>> eigenvalues of OVERLAP projected operator
-	  write(*, *) 'OVERLAP operator'
-	  write(*, *)
-
-c	  >>> set mu_shift = 1.0d0
-	  mu_shift = 1.0d0
-c	  >>> appropriate shift is necessary
+c	  >>> fill-in the central-branch Wilson fermions
 	  do i = 1, nferm
-	    a(i, i) = a(i, i) - mu_shift
+	    s(i) = dcmplx(0.0d0, 0.0d0)
 	  end do
-c	  >>> perform overlap projection
-	  call overlap(a)
+	  do k = 1, nferm
+	    s(k) = dcmplx(1.0d0, 0.0d0)
+	    call mvec_cbWf(s, a(1, k))
+	    s(k) = dcmplx(0.0d0, 0.0d0)
+	  end do
 
 c     >>> compute the eigenvalues of a (WARNING: a is overwritten!)
 	  write(*, *) 'computing eigenvalues...'
@@ -122,7 +114,7 @@ c     >>> compute the eigenvalues of a (WARNING: a is overwritten!)
 	  write(*, *)
 
 c	  >>> write eigenvalues to file
-	  call save_eig(nferm, eig, input_file, 'HO')
+	  call save_eig(nferm, eig, input_file, 'CB')
 	  goto 10
 
 99	  continue
