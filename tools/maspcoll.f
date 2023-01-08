@@ -3,8 +3,11 @@ C     ******************************************************************
 C     ******************************************************************
 C     **                   **                                         **
 C     ** MASPCOLL          **   I. Hip, 2022-04-14                    **
-C     ** v4                **   Last modified: 2022-06-29             **
+C     ** v5                **   Last modified: 2023-01-07             **
 C     **                   **                                         **
+C     ******************************************************************
+C     >>> new in v5:
+C			- eta mass, both with sigma1 and sigma3 currents
 C     ******************************************************************
 C     >>> new in v4:
 C	        - analyze subset of configurations
@@ -17,7 +20,7 @@ C     ******************************************************************
 	real*8 beta, fmass
 
 	write(*, *)
-	write(*, *) 'Masp collector v4 (Hip, 2022-06-29)'
+	write(*, *) 'Masp collector v5 (Hip, 2023-01-07)'
 	write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	write(*, *)
 	write(*, '(1x, ''.masp list file name: '', $)')
@@ -59,9 +62,11 @@ c	>>> read start configuration and the number of measurements
 	read(*, *) nmeas
 	write(*, *)
 
-c	>>> create temporary output files
+c	>>> open file with the list of .masp input files
 	open(3, file = masplistname, form = 'formatted', status = 'old')
-	open(14, file = 'j1.tmp', form = 'formatted', status = 'unknown')
+
+c	>>> create temporary output files for pion and eta
+	open(14, file = 'p1.tmp', form = 'formatted', status = 'unknown')
 	write(14, '(''# triplet j1 / nf'', i2, $)') nf
 	write(14,
      & '('' / mode'', i2, '' / nplat'', i3, '' / jkb'', i4, $)')
@@ -69,7 +74,7 @@ c	>>> create temporary output files
 	write(14,
      & '('' / start'', i6, '' / nmeas'', i6)')
      & kcfstart, nmeas
-	open(15, file = 'j3.tmp', form = 'formatted', status = 'unknown')
+	open(15, file = 'p3.tmp', form = 'formatted', status = 'unknown')
 	write(15, '(''# triplet j3 / nf'', i2, $)') nf
 	write(15,
      & '('' / mode'', i2, '' / nplat'', i3, '' / jkb'', i4, $)')
@@ -77,7 +82,23 @@ c	>>> create temporary output files
 	write(15,
      & '('' / start'', i6, '' / nmeas'', i6)')
      & kcfstart, nmeas
-
+	open(16, file = 'e1.tmp', form = 'formatted', status = 'unknown')
+	write(16, '(''# singlet j1 / nf'', i2, $)') nf
+	write(16,
+     & '('' / mode'', i2, '' / nplat'', i3, '' / jkb'', i4, $)')
+     & mode, nplat, jkblocks
+	write(16,
+     & '('' / start'', i6, '' / nmeas'', i6)')
+     & kcfstart, nmeas
+	open(17, file = 'e3.tmp', form = 'formatted', status = 'unknown')
+	write(17, '(''# singlet j3 / nf'', i2, $)') nf
+	write(17,
+     & '('' / mode'', i2, '' / nplat'', i3, '' / jkb'', i4, $)')
+     & mode, nplat, jkblocks
+	write(17,
+     & '('' / start'', i6, '' / nmeas'', i6)')
+     & kcfstart, nmeas
+	 
 c   >>> loop over files in the list
 	ifile = 0
 10    read(3, '(a)', end = 99) masp_file_name
@@ -99,20 +120,32 @@ c   >>> loop over files in the list
 
 99      close(3)
 
-c	>>> close output file j1.tmp
+c	>>> close output file p1.tmp
 	write(14, *)
 	write(14, *)
 	close(14)
 
-c	>>> close output file j3.tmp
+c	>>> close output file p3.tmp
 	write(15, *)
 	write(15, *)
 	close(15)
 
+c	>>> close output file e1.tmp
+	write(16, *)
+	write(16, *)
+	close(16)
+
+c	>>> close output file e3.tmp
+	write(17, *)
+	write(17, *)
+	close(17)
+
 c	>>> create final output file
-	call system('cat j1.tmp j3.tmp > '//outname)
-	call system('rm j1.tmp')
-	call system('rm j3.tmp')
+	call system('cat p1.tmp p3.tmp e1.tmp e3.tmp > '//outname)
+	call system('rm p1.tmp')
+	call system('rm p3.tmp')
+	call system('rm e1.tmp')
+	call system('rm e3.tmp')
 
 	write(*, *) '...done. -> results are written to file: ', outname
 	write(*, *)
@@ -281,15 +314,25 @@ c	>>> Gell-Mann--Oakes--Renner relation (j3 current)
 	gmor3_var = fmass * sigma_var / (2.0d0 * sigma_av * wm_t3(0)**2) +
      &  2.0d0 * fmass * sigma_av * wm_t3_var(0) / wm_t3(0)**4
 
-c	>>> write to output file j1.tmp
+c	>>> write to output file p1.tmp
 	write(14, '(1x, f6.4, $)') fmass
 	write(14, *) wm_t(0), dsqrt(wm_t_var(0)),
      &  sigma_av, dsqrt(sigma_var), gmor, dsqrt(gmor_var)
 
-c	>>> write to output file j3.tmp
+c	>>> write to output file p3.tmp
 	write(15, '(1x, f6.4, $)') fmass
 	write(15, *) wm_t3(0), dsqrt(wm_t3_var(0)),
      &  sigma_av, dsqrt(sigma_var), gmor3, dsqrt(gmor3_var)
+
+c	>>> write to output file j1.tmp
+	write(16, '(1x, f6.4, $)') fmass
+	write(16, *) wm_t(0), dsqrt(wm_t_var(0)),
+     &  wm_s(0), dsqrt(wm_s_var(0))
+
+c	>>> write to output file j3.tmp
+	write(17, '(1x, f6.4, $)') fmass
+	write(17, *) wm_t3(0), dsqrt(wm_t3_var(0)),
+     &  wm_s3(0), dsqrt(wm_s3_var(0))
 
 	write(*, *)
 	return
