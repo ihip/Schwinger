@@ -3,8 +3,11 @@ C     ******************************************************************
 C     ******************************************************************
 C     **                   **                                         **
 C     ** MASPCOLL          **   I. Hip, 2022-04-14                    **
-C     ** v6                **   Last modified: 2023-02-02             **
+C     ** v7                **   Last modified: 2023-02-09             **
 C     **                   **                                         **
+C     ******************************************************************
+C     >>> new in v7:
+C			- j3 masses before fitting are written to file name.Mj3
 C     ******************************************************************
 C     >>> new in v6:
 C			- j1 masses before fitting are written to file name.Mj1
@@ -18,22 +21,24 @@ C			- "proper" jackknife for mass error bars
 C			- jackknife error for GMOR
 C     ******************************************************************
 
-	character*64 masplistname, cname, outname, Mj1name, masp_file_name
+	character*64 masplistname, cname, outname, masp_file_name
+	character*64 Mj1name, Mj3name
 
 	real*8 beta, fmass
 
 	write(*, *)
-	write(*, *) 'Masp collector v6 (Hip, 2023-02-02)'
+	write(*, *) 'Masp collector v7 (Hip, 2023-02-09)'
 	write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	write(*, *)
 	write(*, '(1x, ''.masp list file name: '', $)')
 	read(*, '(a)') masplistname
 	write(*, *)
-	write(*, '(1x, ''name for .col and .Mj1 output files: '', $)')
+	write(*, '(1x, ''name for .col and other output files: '', $)')
 	read(*, '(a)') cname
 	write(*, *)
 	outname = cname(1:lnblnk(cname))//'.col'
 	Mj1name = cname(1:lnblnk(cname))//'.Mj1'
+	Mj3name = cname(1:lnblnk(cname))//'.Mj3'
 
 c	>>> not yet implemented
 c	write(*, '(1x, ''Top. charge (0-selected, 1-all): '', $)')
@@ -107,6 +112,9 @@ c	>>> create temporary output files for pion and eta
 c	>>> create output file for Mj1
 	open(18, file = Mj1name, form = 'formatted', status = 'unknown')
 
+c	>>> create output file for Mj1
+	open(19, file = Mj3name, form = 'formatted', status = 'unknown')
+
 c   >>> loop over files in the list
 	ifile = 0
 10    read(3, '(a)', end = 99) masp_file_name
@@ -148,8 +156,9 @@ c	>>> close output file e3.tmp
 	write(17, *)
 	close(17)
 
-c	>>> close output file .Mj1
+c	>>> close output files .Mj1 and .Mj3
 	close(18)
+	close(19)
 
 c	>>> create final output file
 	call system('cat p1.tmp p3.tmp e1.tmp e3.tmp > '//outname)
@@ -163,6 +172,7 @@ c	>>> create final output file
 	write(*, *) '-> results are written to files: '
 	write(*, *) outname
 	write(*, *) Mj1name
+	write(*, *) Mj3name
 	write(*, *)
 	end
 
@@ -356,6 +366,14 @@ c	>>> write to .Mj1 file
 		write(18, *) it, t(it, 0), dsqrt(t_var(it, 0))
 	end do
 	write(18, *)
+
+c	>>> write to .Mj3 file
+	write(19, '(A, I3)') '# j3 / nplat = ', nplat
+	write(19, *) fmass, wm_t3(0), dsqrt(wm_t3_var(0))
+	do it = 1, ntime / 2 - 1
+		write(19, *) it, t3(it, 0), dsqrt(t3_var(it, 0))
+	end do
+	write(19, *)
 
 	write(*, *)
 	return
