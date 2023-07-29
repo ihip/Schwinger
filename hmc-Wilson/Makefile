@@ -24,8 +24,8 @@ ACCURACY1 = 0.2e-07
 #
 # lattice size:
 # it should be carefully checked when NTIME != NSPACE
-NSPACE = 8
-NTIME = 32
+NSPACE = 16
+NTIME = 16
 #
 ########################################################################
 F77 = gfortran

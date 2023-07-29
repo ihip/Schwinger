@@ -37,6 +37,7 @@ C     ------------------------------------------------------------------
 	    amean = amean + float(iaccept(ii))
       enddo
       amean = amean/length
+C      write(*, *) iter, amean
 C     ------------------------------------------------------------------
 C     formula to perform an underrelaxed change for eps
 C     ------------------------------------------------------------------
