@@ -1,6 +1,6 @@
-      program compute_eigenvalues
+      program compute_chiralities
 
-c	  ihip - 24 Nov 07 - last modified: 05 Aug 20
+c	  ihip - 22 Aug 24 - last modified: 22 Aug 24
 
 c	  >>> necessary initializations for 2D U(1)
 	  parameter (ndrc=2,ngrp=1,ndim=2)
@@ -23,13 +23,13 @@ c     >>> gauge file name
 c     >>> 'dense' working array
 	  complex*16 a(nferm, nferm)
 
-c	  >>> shift of the Dirac operator before overlap projection (1.0)
-	  real*8 mu_shift
-
 c     >>> EVs
 	  complex*16 eig(nferm)
 	  complex*16 reig(maxevect), vr(nferm, maxevect)
 	  real*8 rtol, edetr, edeti
+
+c     >>> unit vector needed for dense fill-in
+      complex*16 s(nferm)
 
 c     >>> chiralities (for real modes only)
       real*8 chir(maxevect)
@@ -42,13 +42,12 @@ C     ------------------------------------------------------------------
 
 C     >>> initialize index arrays
 	  call mk_index()
-	  call make_ihf()
 
 C	  >>> set tolerance for real eigenvalues
 	  rtol = 1.0d-12
 
 	  write(*, *)
-	  write(*,'(1x,''Compute eigenvalues (Hip, 23 Aug 24)'')')
+	  write(*,'(1x,''Compute chiralities (Hip, 22 Aug 24)'')')
 	  write(*, *)   '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	  write(*, *)
 	  write(*, '(1x, ''Lattice:   '', i3, '' x '', i3)') NSPACE, NTIME
@@ -90,12 +89,15 @@ c	  >>> compute topological charge
 	  write(*, *)
 	  write(*, *)
 
-c	  >>> eigenvalues of KERNEL operator
-	  write(*, *) '### KERNEL operator ###'
-
-c	  >>> fill-in the hypercube fermions
-	  call init_hf('GWRoptimal_ws   ')
-	  call fill_dhf(a)
+c	  >>> fill-in the dense matrix
+      do i = 1, nferm
+        s(i) = dcmplx(0.0d0, 0.0d0)
+      end do
+      do k = 1, nferm
+        s(k) = dcmplx(1.0d0, 0.0d0)
+        call mvec_cbWF(s, a(1, k))
+        s(k) = dcmplx(0.0d0, 0.0d0)
+      end do
 
 c     >>> compute the eigenvalues of a (WARNING: a is overwritten!)
 	  write(*, *) 'computing eigenvalues...'
@@ -121,57 +123,9 @@ c     >>> compute chiralities of real modes
         end do
         write(*, *) dreal(reig(i)), dimag(reig(i)), chir(i)
       end do
-	  write(*, *)
 
-c	  >>> write eigenvalues to file
-	  call save_eig(nferm, eig, input_file, 'HF')
-
-
-c	  >>> eigenvalues of OVERLAP projected operator
-	  write(*, *)
-	  write(*, *) 'OVERLAP operator'
-	  write(*, *)
-
-c	  >>> fill-in the same hypercube fermions again (a was overwritten!)
-	  call fill_dhf(a)
-
-c	  >>> set mu_shift = 1.0d0
-	  mu_shift = 1.0d0
-c	  >>> appropriate shift is necessary
-	  do i = 1, nferm
-	    a(i, i) = a(i, i) - mu_shift
-	  end do
-c	  >>> perform overlap projection
-	  call overlap(a)
-
-c     >>> compute the eigenvalues of a (WARNING: a is overwritten!)
-	  write(*, *) 'computing eigenvalues...'
-	  write(*, *)
-
-	  nreal = 0
-	  nuf = 0
-	  call lapackeig(a, eig, rtol, nreal, reig, vr, maxevect,
-     &    edetr, edeti, nuf)
-
-	  print *, 'nreal = ', nreal	  
-	  print *, 'nuf   = ', nuf
-	  print *, 'edetr = ', edetr
-	  print *, 'edeti = ', edeti
-	  write(*, *)
-
-c     >>> compute chiralities of real modes
-      do i = 1, nreal
-        chir(i) = 0.0d0
-        do k = 1, nferm - 1, 2
-          chir(i) = chir(i) + dconjg(vr(k, i)) * vr(k, i) -
-     &      dconjg(vr(k + 1, i)) * vr(k + 1, i)
-        end do
-        write(*, *) dreal(reig(i)), dimag(reig(i)), chir(i)
-      end do
-	  write(*, *)
-	  
-c	  >>> write eigenvalues to file
-	  call save_eig(nferm, eig, input_file, 'OV')
+c	  >>> write eigenvalues and chiralities to file
+c	  call save_chir(nferm, eig, chir, input_file, 'CB')
 
 	  end
 

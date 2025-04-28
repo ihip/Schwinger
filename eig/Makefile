@@ -1,17 +1,20 @@
 ########################################################################
-# ihip, 24 Nov 07; last modified: 2023-01-07                           #
+# ihip, 24 Nov 07; last modified: 2024-08-23                           #
 ########################################################################
 
-NTIME =  20
-NSPACE = 20
+NTIME =  24
+NSPACE = 24
 
 ########################################################################
 # Linux version:
 FC = gfortran
 CC = gcc
 OPTIMIZATION = -O
+FFLAGS = -c -cpp -DNTIME=$(NTIME) -DNSPACE=$(NSPACE)
+SRC = ../src
+# LAPACK ###############################################################
 # WSL (Windows Subsystem for Linux) Ubuntu
-ifeq ($(WSL_DISTRO_NAME),Ubuntu)
+ifeq ($(WSL_DISTRO_NAME),Ubuntu-22.04)
 	LIB = /usr/lib/x86_64-linux-gnu/
 endif
 # cluster Isabella (SRCE Zagreb)
@@ -33,6 +36,18 @@ eig: main_eig.o hf.o mk_index.o itopch.o lapackeig.o scalp.o\
 	$(FC) $(OPTIMIZATION) main_eig.o hf.o mk_index.o itopch.o\
            scalp.o normalize.o lapackeig.o overlap.o save_eig.o\
           $(MYLIB) $(LAPACK) -o eig$(NSPACE)x$(NTIME).x
+
+Wf_chir: main_Wf_chir.o mvec.o mk_index.o itopch.o lapackeig.o scalp.o\
+	 normalize.o save_eig.o Makefile
+	$(FC) $(OPTIMIZATION) main_Wf_chir.o mvec.o mk_index.o itopch.o\
+           scalp.o normalize.o lapackeig.o save_eig.o\
+          $(MYLIB) $(LAPACK) -o Wf_chir$(NSPACE)x$(NTIME).x
+
+cbWf_chir: main_cbWf_chir.o mvec_cbWf.o mk_index.o itopch.o lapackeig.o scalp.o\
+	 normalize.o Makefile
+	$(FC) $(OPTIMIZATION) main_cbWf_chir.o mvec_cbWf.o mk_index.o itopch.o\
+           scalp.o normalize.o lapackeig.o \
+          $(MYLIB) $(LAPACK) -o cbWf_chir$(NSPACE)x$(NTIME).x
 
 # eigenvalues of hypercube overlap fermions (HO)
 cfeig: main_cfeig.o hf.o mk_index.o itopch.o lapackeig.o scalp.o\
@@ -69,12 +84,6 @@ mvec_cbWf.o: mvec_cbWf.F Makefile
 hf.o: hf.F Makefile
 	$(FC) $(FFLAGS) hf.F
 
-mk_index.o: mk_index.F Makefile
-	$(FC) $(FFLAGS) mk_index.F
-	
-itopch.o: itopch.F Makefile
-	$(FC) $(FFLAGS) itopch.F
-
 lapackeig.o: lapackeig.F Makefile
 	$(FC) $(FFLAGS) lapackeig.F
 
@@ -89,6 +98,17 @@ overlap.o: overlap.F Makefile
 
 save_eig.o: save_eig.f Makefile
 	$(FC) $(FFLAGS) save_eig.f
+
+### subroutines from ../src ############################################
+
+itopch.o: $(SRC)/itopch.F Makefile
+	$(FC) $(FFLAGS) $(SRC)/itopch.F
+
+mk_index.o: $(SRC)/mk_index.F Makefile
+	$(FC) $(FFLAGS) $(SRC)/mk_index.F
+
+mvec.o: $(SRC)/mvec.F Makefile
+	$(FC) $(FFLAGS) $(SRC)/mvec.F
 
 ########################################################################
 
