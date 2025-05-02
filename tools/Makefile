@@ -22,7 +22,7 @@ MAX_NMEAS = 10000
 F77 = gfortran
 FFLAGS = -cpp -DMAX_NCOMP=$(MAX_NCOMP) -DMAX_MCOMP=$(MAX_MCOMP) \
          -DMAX_NMEAS=$(MAX_NMEAS) -DMAX_NTIME=$(MAX_NTIME) \
-	 -DMAX_NSPACE=$(MAX_NTIME)
+	 -DMAX_NSPACE=$(MAX_NSPACE)
 #
 ########################################################################
 
