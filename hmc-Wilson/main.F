@@ -6,8 +6,8 @@ C     **  HMC2DFU1          **    Based on program by                 **
 C     **                    **    H. Gausterer and C.B. Lang          **
 C     **                    **    Modified by I. Hip, Nov 95          **
 C     **                    **    Major revisions: Mar, Dec 96 (ihip) **
-C     **  v4.1              **                                        **
-C     **                    **    Last modified: 06 Nov 20 (ihip)     **
+C     **  v4.2              **                                        **
+C     **                    **    Last modified: 08 May 25 (ihip)     **
 C     ******************************************************************
       parameter (ndrc=2,ngrp=1,ndim=2)
       parameter (nsite=NTIME*NSPACE)
@@ -52,6 +52,9 @@ C     >>> file name preparation
       character*10 c_size
       character*6 c_beta, c_kappa
 
+      character*7 c_iconf
+      character*12 c_iconf_name
+
 C     >>> declarations needed for .data file
       character*64 c_computable(ncomp)
       real*4 computable(ncomp, nbufsize)
@@ -82,7 +85,7 @@ C     >>> number of exceptional configurations
 
 C     >>> interactive parameter input
       write(*, *)
-      write(*, *) 'HMC Wilson - v4.1 (06 Nov 20)'
+      write(*, *) 'HMC Wilson - v4.2 (08 May 25)'
       write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
       write(*, *)
       write(*, '(1x, ''beta = '', $)')
@@ -101,7 +104,7 @@ C     >>> interactive parameter input
       read(*, *) ntherm
       write(*, '(1x, ''nmeas = '', $)')
       read(*, *) nmeas
-      write(*, '(1x, ''measurement step = '', $)')
+      write(*, '(1x, ''measurement step (neg. -> save)  = '', $)')
       read(*, *) mstep
       write(*, '(1x, ''nsave = '', $)')
       read(*, *) nsave
@@ -256,6 +259,22 @@ C       >>> update
           cumtime = cumtime + iacc * nsteps * eps
 	  call adjust_eps(eps, iacc, ii)
 	end do
+
+C     >>> added in version 4.2 / 2025-05-08 / ihip
+C     >>> if mstep is negative save the configuration
+      if(mstep .lt. 0) then
+
+        write(c_iconf, '(i7)') it + 1000000
+        c_iconf_name = 'i'//c_iconf(2:7)//'.conf'
+
+        open(unit=77, file=c_iconf_name, form='unformatted',
+     &status='unknown')
+	  write(77) NTIME, NSPACE
+          write(77) beta, akap, eps
+          write(77) ntherm + it * mstep
+	  write(77) u
+        close(77)
+      end if
 	
 C       >>> measurements
 	computable(1, ns) = real(iacc)

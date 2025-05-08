@@ -31,7 +31,8 @@ NTIME = 16
 F77 = gfortran
 OPTIMIZATION = -O
 FFLAGS = -c -DNTIME=$(NTIME) -DNSPACE=$(NSPACE)\
-         -DACCURACY=$(ACCURACY) -DACCURACY1=$(ACCURACY1)
+         -DACCURACY=$(ACCURACY) -DACCURACY1=$(ACCURACY1)\
+		 -fallow-argument-mismatch
 MYLIB = ../cbl-mylib/mylib.a
 ########################################################################
 
