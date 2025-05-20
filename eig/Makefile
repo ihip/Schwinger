@@ -26,6 +26,11 @@ ifeq ($(SITE_NAME),ICN-UNAM)
 	LIB = /software/icn/lapack/3.9/
 endif
 LAPACK = $(LIB)liblapack.so.3
+
+ifeq ($(HOME),/lustre/home/ihip)
+       LIB = /usr/lib64/
+       LAPACK = $(LIB)libopenblasp.so.0
+endif
 ########################################################################
 
 FFLAGS = -c $(OPTIMIZATION) -DNTIME=$(NTIME) -DNSPACE=$(NSPACE)

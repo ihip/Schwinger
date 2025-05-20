@@ -61,6 +61,7 @@ C     >>> read .conf list file name
 
 c	  >>> loop through the files in the list
 10    read(2, '(a)', end = 99) input_file
+	  write(*, *) 'input file name = ', input_file
 
 C	  >>> read .conf file
 	  open(1, file = input_file, form = 'unformatted', status = 'old')
