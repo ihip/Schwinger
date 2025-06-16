@@ -5,7 +5,7 @@
 #
 # lattice size:
 # [Hip: for metropolis it is not clear if NTIME != NSPACE is ok...]
-NTIME = 8
+NTIME = 64
 NSPACE = 64
 #
 ########################################################################

@@ -15,7 +15,7 @@ MAX_NCOMP = 30
 MAX_MCOMP = 20
 #
 # maximal number of measurements (recommended 10000):
-MAX_NMEAS = 10000
+MAX_NMEAS = 100000
 #
 ########################################################################
 #

@@ -14,7 +14,7 @@ C     ******************************************************************
 C     >>> ncomp - number of computables
       parameter (ncomp=5)
 C     >>> nbufsize - size of data buffer
-      parameter (nbufsize=10000)
+      parameter (nbufsize=100000)
 C     ------------------------------------------------------------------
 C     >>> gauge fields
       complex*16 u(nsite, ndim)
