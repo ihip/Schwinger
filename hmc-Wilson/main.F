@@ -6,8 +6,8 @@ C     **  HMC2DFU1          **    Based on program by                 **
 C     **                    **    H. Gausterer and C.B. Lang          **
 C     **                    **    Modified by I. Hip, Nov 95          **
 C     **                    **    Major revisions: Mar, Dec 96 (ihip) **
-C     **  v4.2              **                                        **
-C     **                    **    Last modified: 08 May 25 (ihip)     **
+C     **  v4.2.1            **                                        **
+C     **                    **    Last modified: 30 Jun 25 (ihip)     **
 C     ******************************************************************
       parameter (ndrc=2,ngrp=1,ndim=2)
       parameter (nsite=NTIME*NSPACE)
@@ -85,8 +85,8 @@ C     >>> number of exceptional configurations
 
 C     >>> interactive parameter input
       write(*, *)
-      write(*, *) 'HMC Wilson - v4.2 (08 May 25)'
-      write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+      write(*, *) 'HMC Wilson - v4.2.1 (30 Jun 25)'
+      write(*, *) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
       write(*, *)
       write(*, '(1x, ''beta = '', $)')
       read(*, *) beta
@@ -252,8 +252,8 @@ c      call initwindow()
 200   it = it + 1
 
 C       >>> update
-	do i = 1, mstep
-	  ii = (it - 1) * mstep + i
+	do i = 1, iabs(mstep)
+	  ii = (it - 1) * iabs(mstep) + i
 	  if(mod(ii, 100) .eq. 0) call unitarize(ngaug, u)
 	  niter = update(eps, nsteps, iacc, s_final, h_delta)
           cumtime = cumtime + iacc * nsteps * eps
@@ -271,7 +271,7 @@ C     >>> if mstep is negative save the configuration
      &status='unknown')
 	  write(77) NTIME, NSPACE
           write(77) beta, akap, eps
-          write(77) ntherm + it * mstep
+          write(77) ntherm + it * iabs(mstep)
 	  write(77) u
         close(77)
       end if
@@ -355,7 +355,7 @@ c         m = imassp(...)
 	  rewind 7
 	  write(7) NTIME, NSPACE
           write(7) beta, akap, eps
-          write(7) ntherm + it * mstep
+          write(7) ntherm + it * iabs(mstep)
 	  write(7) u
 	  endfile 7
 	  do i = 1, nsave
